@@ -1,0 +1,20 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# env secrets
+.env
+.env*.local
+
+# OS / editor
+.DS_Store
+*.pem
+
+# debug / misc
+npm-debug.log*
+.vercel
+*.tmp
+*.new

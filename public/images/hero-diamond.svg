@@ -1,0 +1,24 @@
+<svg width="1800" height="1200" viewBox="0 0 1800 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1800" height="1200" fill="#FDFBF7"/>
+  <circle cx="1250" cy="365" r="455" fill="#F6EFE6" opacity="0.9"/>
+  <circle cx="570" cy="735" r="360" fill="#FFF8F0" opacity="0.95"/>
+  <g opacity="0.18">
+    <path d="M195 0L0 195M390 0L0 390M585 0L0 585M780 0L0 780M975 0L0 975M1170 0L0 1170M1365 0L165 1200M1560 0L360 1200M1755 0L555 1200M1800 150L750 1200M1800 345L945 1200M1800 540L1140 1200M1800 735L1335 1200M1800 930L1530 1200" stroke="#B31B1B" stroke-width="1.2"/>
+    <path d="M1605 0L1800 195M1410 0L1800 390M1215 0L1800 585M1020 0L1800 780M825 0L1800 975M630 0L1800 1170M435 0L1635 1200M240 0L1440 1200M45 0L1245 1200M0 150L1050 1200M0 345L855 1200M0 540L660 1200M0 735L465 1200M0 930L270 1200" stroke="#B31B1B" stroke-width="1.2"/>
+  </g>
+  <g filter="url(#blur)">
+    <ellipse cx="940" cy="620" rx="475" ry="142" fill="#EBDCCD" opacity="0.58"/>
+  </g>
+  <g transform="translate(630 300)">
+    <path d="M272 0L520 160L435 558H108L24 160L272 0Z" fill="white" fill-opacity="0.72" stroke="#D8C8B8" stroke-width="3"/>
+    <path d="M24 160H520M146 160L272 0L398 160M146 160L108 558M398 160L435 558M272 0L272 558M24 160L272 558L520 160" stroke="#B31B1B" stroke-opacity="0.28" stroke-width="3"/>
+    <path d="M110 560H435" stroke="#333333" stroke-opacity="0.15" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="444" cy="106" r="30" fill="#B31B1B" opacity="0.14"/>
+    <circle cx="108" cy="404" r="42" fill="#B31B1B" opacity="0.08"/>
+  </g>
+  <defs>
+    <filter id="blur" x="365" y="378" width="1150" height="484" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="50"/>
+    </filter>
+  </defs>
+</svg>

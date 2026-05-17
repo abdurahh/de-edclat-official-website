@@ -1,0 +1,135 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  --background: #fdfbf7;
+  --foreground: #333333;
+  --ruby: #b31b1b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--foreground);
+  background:
+    linear-gradient(135deg, rgba(253, 251, 247, 0.94), rgba(253, 251, 247, 0.98)),
+    linear-gradient(45deg, rgba(179, 27, 27, 0.035) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(179, 27, 27, 0.035) 25%, transparent 25%);
+  background-position:
+    0 0,
+    0 0,
+    0 18px;
+  background-size:
+    auto,
+    36px 36px,
+    36px 36px;
+}
+
+::selection {
+  color: #fdfbf7;
+  background: var(--ruby);
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Prevents wide letter-spacing from clipping the first/last glyph in cards */
+.caps-label {
+  display: inline-block;
+  padding-inline: var(--caps-track);
+  letter-spacing: var(--caps-track);
+}
+
+.caps-12 {
+  --caps-track: 0.12em;
+}
+
+.caps-28 {
+  --caps-track: 0.28em;
+}
+
+.caps-30 {
+  --caps-track: 0.3em;
+}
+
+.caps-32 {
+  --caps-track: 0.32em;
+}
+
+.caps-35 {
+  --caps-track: 0.35em;
+}
+
+.caps-36 {
+  --caps-track: 0.36em;
+}
+
+.caps-40 {
+  --caps-track: 0.4em;
+}
+
+.caps-45 {
+  --caps-track: 0.45em;
+}
+
+.section-eyebrow {
+  display: inline-block;
+  padding-inline: 0.45em;
+  letter-spacing: 0.45em;
+}
+
+/* Cards: clip only media, never typography */
+.card-shell {
+  overflow: visible;
+}
+
+.card-media {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.card-body {
+  overflow: visible;
+  padding-inline: 0.15rem;
+}
+
+.bg-ruby a.text-ruby {
+  color: #b31b1b;
+}
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.22em;
+  padding: 0.625rem 1.85rem;
+  text-indent: 0.22em;
+}
+
+.form-field {
+  width: 100%;
+  border: 1px solid rgba(179, 27, 27, 0.16);
+  background: rgba(255, 255, 255, 0.58);
+  padding: 1rem 1.1rem;
+  color: #333333;
+  outline: none;
+  transition:
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background 220ms ease;
+}
+
+.form-field:focus {
+  border-color: rgba(179, 27, 27, 0.48);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 4px rgba(179, 27, 27, 0.08);
+}
