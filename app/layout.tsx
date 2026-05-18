@@ -21,7 +21,7 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   title: "De Eclat | Diamonds, Watches & Bespoke Jewelry",
   description:
-    "A luxury brand promotion website for De Eclat and DIALUSTER INC., serving Hong Kong and Tokyo with 15+ years of jewelry and watch authority.",
+    "A luxury brand promotion website for De Eclat, headquartered in Hong Kong with 15+ years of jewelry and watch authority.",
   metadataBase: new URL("https://deeclat.example")
 };
 

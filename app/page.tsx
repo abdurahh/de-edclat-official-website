@@ -7,22 +7,25 @@ import { TradingCitiesTicker } from "@/components/TradingCitiesTicker";
 
 const products = [
   {
-    title: "Fine Jewelry",
+    title: "Jewelry",
     eyebrow: "Bespoke",
+    href: "/collection/jewelry",
     image: "/images/necklace-cover.jpeg",
     imagePosition: "center 42%",
     className: "lg:mt-24"
   },
   {
-    title: "Luxury Timepieces",
+    title: "Watch",
     eyebrow: "Servicing",
+    href: "/collection/watch",
     image: "/images/watch-cover.jpeg",
     imagePosition: "center center",
     className: ""
   },
   {
-    title: "Precious Stones",
+    title: "Precious Stone",
     eyebrow: "Trading",
+    href: "/collection/precious-stone",
     image: "/images/precious-stone.jpeg",
     imagePosition: "center 38%",
     className: "lg:mt-14"
@@ -87,8 +90,8 @@ export default function Home() {
             </p>
             <p className="mt-6 max-w-xl text-base leading-8 text-slate">
               For over 15 years, De Eclat has served jewelers, buyers and
-              trusted partners through a disciplined supply network spanning
-              Hong Kong and Tokyo.
+              trusted partners through a disciplined supply network rooted in
+              Hong Kong.
             </p>
           </ScrollReveal>
           <ScrollReveal className="hidden lg:block">
@@ -162,61 +165,42 @@ export default function Home() {
       </section>
 
       <section id="presence" className="px-5 py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl">
-          <ScrollReveal className="max-w-3xl">
+        <div className="mx-auto max-w-5xl">
+          <ScrollReveal className="mx-auto max-w-3xl text-center">
             <p className="section-eyebrow text-xs font-semibold uppercase text-ruby">
               Heritage & Presence
             </p>
             <h2 className="mt-5 font-display text-4xl leading-tight text-charcoal sm:text-6xl">
-              Hong Kong precision with a Tokyo point of trust.
+              Hong Kong precision, built on enduring trust.
             </h2>
           </ScrollReveal>
-          <div className="mt-14 grid gap-6 lg:grid-cols-2">
-            <ScrollReveal>
-              <article className="card-shell rounded-[2rem] border border-ruby/10 bg-white/50 p-4 shadow-soft backdrop-blur-xl">
-                <div className="card-media relative aspect-[4/3] rounded-[1.5rem]">
+          <ScrollReveal className="mt-14">
+            <article className="card-shell overflow-hidden rounded-[2.5rem] border border-ruby/10 bg-white/50 shadow-soft backdrop-blur-xl">
+              <div className="grid lg:grid-cols-2">
+                <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[22rem]">
                   <Image
                     src="/images/location-hong-kong.svg"
                     alt="Hong Kong architectural illustration"
                     fill
-                    sizes="(min-width: 1024px) 45vw, 92vw"
+                    sizes="(min-width: 1024px) 50vw, 92vw"
                     className="object-cover"
                   />
                 </div>
-                <div className="card-body p-5">
-                  <h3 className="font-display text-3xl text-charcoal">
+                <div className="flex flex-col justify-center p-8 text-center sm:p-10 lg:p-12 lg:text-left">
+                  <p className="caps-label caps-28 text-xs font-semibold uppercase text-ruby">
+                    Headquarters
+                  </p>
+                  <h3 className="mt-4 font-display text-3xl text-charcoal sm:text-4xl">
                     De Eclat, Hong Kong
                   </h3>
-                  <p className="mt-3 leading-7 text-slate">
+                  <p className="mt-4 text-base leading-8 text-slate">
                     Jordan, Kowloon headquarters supporting established jewelry
                     partners and high-volume buyers.
                   </p>
                 </div>
-              </article>
-            </ScrollReveal>
-            <ScrollReveal>
-              <article className="card-shell rounded-[2rem] border border-ruby/10 bg-white/50 p-4 shadow-soft backdrop-blur-xl lg:mt-16">
-                <div className="card-media relative aspect-[4/3] rounded-[1.5rem]">
-                  <Image
-                    src="/images/location-tokyo.svg"
-                    alt="Tokyo architectural illustration"
-                    fill
-                    sizes="(min-width: 1024px) 45vw, 92vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="card-body p-5">
-                  <h3 className="font-display text-3xl text-charcoal">
-                    DIALUSTER INC., Japan
-                  </h3>
-                  <p className="mt-3 leading-7 text-slate">
-                    A Tokyo presence that reinforces international credibility
-                    and disciplined service standards.
-                  </p>
-                </div>
-              </article>
-            </ScrollReveal>
-          </div>
+              </div>
+            </article>
+          </ScrollReveal>
         </div>
       </section>
 
