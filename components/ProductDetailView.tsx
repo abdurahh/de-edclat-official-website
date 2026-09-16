@@ -1,0 +1,117 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { productInquiryMessage } from "@/lib/whatsapp";
+import {
+  JEWELRY_DETAIL_FIELDS,
+  WATCH_DETAIL_FIELDS,
+  formatPrice,
+  stockLabel,
+  type Product
+} from "@/lib/types/product";
+
+type ProductDetailViewProps = {
+  product: Product;
+};
+
+export function ProductDetailView({ product }: ProductDetailViewProps) {
+  const images =
+    product.images.length > 0
+      ? product.images
+      : ["/images/watch-cover.jpeg"];
+  const [activeIndex, setActiveIndex] = useState(0);
+  const fields =
+    product.category === "watch"
+      ? WATCH_DETAIL_FIELDS
+      : JEWELRY_DETAIL_FIELDS;
+  const visibleDetails = fields.filter(
+    (field) => product.details[field.key]
+  );
+
+  return (
+    <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <div>
+        <div className="card-media relative aspect-[4/5] w-full overflow-hidden bg-mist">
+          <Image
+            src={images[activeIndex]}
+            alt={`${product.brand} ${product.name}`}
+            fill
+            priority
+            quality={92}
+            sizes="(min-width: 1024px) 40vw, 92vw"
+            className="object-cover"
+          />
+        </div>
+        {images.length > 1 ? (
+          <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-5">
+            {images.map((image, index) => (
+              <button
+                key={`${image}-${index}`}
+                type="button"
+                onClick={() => setActiveIndex(index)}
+                className={`card-media relative aspect-square overflow-hidden border transition ${
+                  index === activeIndex
+                    ? "border-ruby/50"
+                    : "border-transparent opacity-75 hover:opacity-100"
+                }`}
+                aria-label={`View image ${index + 1}`}
+              >
+                <Image
+                  src={image}
+                  alt=""
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
+      <div className="flex flex-col">
+        <p className="caps-label caps-28 text-xs font-semibold uppercase text-ruby">
+          {product.brand}
+        </p>
+        <h1 className="mt-4 font-display text-4xl leading-tight text-charcoal sm:text-5xl">
+          {product.name}
+        </h1>
+        <p className="mt-6 font-display text-3xl text-charcoal">
+          {formatPrice(product.price, product.currency)}
+        </p>
+        <p className="mt-3 text-sm uppercase tracking-[0.22em] text-slate">
+          {stockLabel(product.stock_status)}
+          {product.condition ? ` · ${product.condition}` : ""}
+        </p>
+
+        {product.description ? (
+          <p className="mt-8 max-w-lg text-base leading-8 text-slate">
+            {product.description}
+          </p>
+        ) : null}
+
+        {visibleDetails.length > 0 ? (
+          <dl className="mt-10 divide-y divide-ruby/10 border-y border-ruby/10">
+            {visibleDetails.map((field) => (
+              <div
+                key={field.key}
+                className="grid grid-cols-[8.5rem_1fr] gap-4 py-4 text-sm sm:grid-cols-[10rem_1fr]"
+              >
+                <dt className="uppercase tracking-[0.18em] text-slate">
+                  {field.label}
+                </dt>
+                <dd className="text-charcoal">{product.details[field.key]}</dd>
+              </div>
+            ))}
+          </dl>
+        ) : null}
+
+        <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <WhatsAppButton message={productInquiryMessage(product)} />
+        </div>
+      </div>
+    </div>
+  );
+}
