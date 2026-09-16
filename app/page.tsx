@@ -8,65 +8,23 @@ import { TradingCitiesTicker } from "@/components/TradingCitiesTicker";
 const products = [
   {
     title: "Jewelry",
-    eyebrow: "Bespoke",
+    eyebrow: "Shop",
     href: "/collection/jewelry",
     image: "/images/necklace-cover.jpeg",
-    imagePosition: "center 42%",
-    className: "lg:mt-24"
+    imagePosition: "center 42%"
   },
   {
     title: "Watch",
-    eyebrow: "Servicing",
+    eyebrow: "Shop",
     href: "/collection/watch",
     image: "/images/watch-cover.jpeg",
-    imagePosition: "center center",
-    className: ""
-  },
-  {
-    title: "Precious Stone",
-    eyebrow: "Trading",
-    href: "/collection/precious-stone",
-    image: "/images/precious-stone.jpeg",
-    imagePosition: "center 38%",
-    className: "lg:mt-14"
+    imagePosition: "center center"
   }
-];
-
-const services = [
-  "Diamond cutting and high-grade stone sourcing",
-  "Private viewings for trusted B2B partners",
-  "Luxury watch servicing and trade consultation",
-  "Bespoke jewelry introductions and appointments"
 ];
 
 export default function Home() {
   return (
-    <main className="overflow-x-hidden">
-      <header className="fixed left-0 right-0 top-0 z-50 px-5 py-5">
-        <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-ruby/10 bg-pearl/70 px-5 py-3 shadow-soft backdrop-blur-2xl">
-          <Link href="/" className="font-script text-3xl leading-none text-ruby">
-            De Eclat
-          </Link>
-          <div className="hidden items-center gap-8 text-xs font-medium uppercase text-charcoal/70 md:flex">
-            <a href="#collection" className="caps-label caps-28">
-              Collection
-            </a>
-            <a href="#services" className="caps-label caps-28">
-              Services
-            </a>
-            <a href="#presence" className="caps-label caps-28">
-              Presence
-            </a>
-          </div>
-          <Link
-            href="/contact"
-            className="nav-cta rounded-full border border-ruby/20 text-xs font-semibold uppercase text-ruby transition hover:bg-ruby hover:text-pearl"
-          >
-            Inquire
-          </Link>
-        </nav>
-      </header>
-
+    <main className="flex min-h-screen flex-col overflow-x-hidden">
       <section className="relative flex min-h-screen items-center px-5 py-28">
         <Image
           src="/images/hero-diamond.svg"
@@ -123,84 +81,16 @@ export default function Home() {
               Minimal presentation, exceptional material presence.
             </h2>
           </ScrollReveal>
-          <div className="mt-16 grid gap-6 lg:grid-cols-3 lg:gap-8">
+          <div className="mx-auto mt-16 flex max-w-4xl flex-col items-stretch gap-6 sm:flex-row sm:justify-center lg:gap-8">
             {products.map((product) => (
-              <ScrollReveal key={product.title}>
+              <ScrollReveal
+                key={product.title}
+                className="w-full sm:w-[22rem] sm:max-w-[22rem] sm:flex-none"
+              >
                 <ProductCard {...product} />
               </ScrollReveal>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section id="services" className="px-5 py-24 sm:py-32">
-        <div className="mx-auto grid max-w-7xl gap-10 rounded-[2.5rem] border border-ruby/10 bg-white/45 p-6 shadow-soft backdrop-blur-2xl md:p-12 lg:grid-cols-[0.9fr_1.1fr]">
-          <ScrollReveal>
-            <p className="section-eyebrow text-xs font-semibold uppercase text-ruby">
-              Bespoke Services
-            </p>
-            <h2 className="mt-5 font-display text-4xl leading-tight text-charcoal sm:text-6xl">
-              Built for serious buyers, never for mass retail.
-            </h2>
-            <p className="mt-6 text-base leading-8 text-slate">
-              De Eclat is a corporate promotion and service platform for B2B
-              inquiries, private sourcing and high-quality trade relationships.
-            </p>
-          </ScrollReveal>
-          <div className="grid gap-4">
-            {services.map((service, index) => (
-              <ScrollReveal key={service}>
-                <div className="card-shell flex gap-5 rounded-3xl border border-ruby/10 bg-pearl/65 p-6 backdrop-blur-xl">
-                  <span className="font-display text-3xl text-ruby/70">
-                    0{index + 1}
-                  </span>
-                  <p className="min-w-0 flex-1 font-display text-2xl leading-snug text-charcoal">
-                    {service}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="presence" className="px-5 py-24 sm:py-32">
-        <div className="mx-auto max-w-5xl">
-          <ScrollReveal className="mx-auto max-w-3xl text-center">
-            <p className="section-eyebrow text-xs font-semibold uppercase text-ruby">
-              Heritage & Presence
-            </p>
-            <h2 className="mt-5 font-display text-4xl leading-tight text-charcoal sm:text-6xl">
-              Hong Kong precision, built on enduring trust.
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal className="mt-14">
-            <article className="card-shell overflow-hidden rounded-[2.5rem] border border-ruby/10 bg-white/50 shadow-soft backdrop-blur-xl">
-              <div className="grid lg:grid-cols-2">
-                <div className="relative aspect-[4/3] lg:aspect-auto lg:min-h-[22rem]">
-                  <Image
-                    src="/images/location-hong-kong.svg"
-                    alt="Hong Kong architectural illustration"
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 92vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="flex flex-col justify-center p-8 text-center sm:p-10 lg:p-12 lg:text-left">
-                  <p className="caps-label caps-28 text-xs font-semibold uppercase text-ruby">
-                    Headquarters
-                  </p>
-                  <h3 className="mt-4 font-display text-3xl text-charcoal sm:text-4xl">
-                    De Eclat, Hong Kong
-                  </h3>
-                  <p className="mt-4 text-base leading-8 text-slate">
-                    Jordan, Kowloon headquarters supporting established jewelry
-                    partners and high-volume buyers.
-                  </p>
-                </div>
-              </div>
-            </article>
-          </ScrollReveal>
         </div>
       </section>
 
@@ -220,6 +110,12 @@ export default function Home() {
           </Link>
         </ScrollReveal>
       </section>
+
+      <footer className="mt-auto px-5 pt-20 pb-20">
+        <p className="mx-auto text-center font-display text-[10px] font-light italic tracking-wide text-slate/40 sm:text-[11px]">
+          © {new Date().getFullYear()} De Eclat. All rights reserved.
+        </p>
+      </footer>
     </main>
   );
 }

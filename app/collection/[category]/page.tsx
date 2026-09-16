@@ -63,7 +63,7 @@ export default async function CollectionComingSoonPage({
   const collection = collections[category];
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-5 py-8">
+    <main className="relative min-h-screen overflow-hidden px-5 pt-28">
       <div
         aria-hidden
         className="absolute left-1/2 top-28 h-72 w-72 -translate-x-1/2 rounded-full bg-ruby/10 blur-3xl"
@@ -73,19 +73,7 @@ export default async function CollectionComingSoonPage({
         className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-champagne/80 blur-3xl"
       />
 
-      <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between rounded-full border border-ruby/10 bg-pearl/70 px-5 py-3 shadow-soft backdrop-blur-2xl">
-        <Link href="/" className="font-script text-3xl leading-none text-ruby">
-          De Eclat
-        </Link>
-        <Link
-          href="/#collection"
-          className="nav-cta rounded-full border border-ruby/20 text-xs font-semibold uppercase text-ruby transition hover:bg-ruby hover:text-pearl"
-        >
-          Back
-        </Link>
-      </nav>
-
-      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-6.5rem)] max-w-6xl items-center py-16">
+      <section className="relative z-10 mx-auto flex min-h-[calc(100vh-7.5rem)] max-w-6xl items-center py-16">
         <div className="w-full overflow-hidden rounded-[2.75rem] border border-ruby/10 bg-white/50 shadow-jewel backdrop-blur-2xl">
           <div className="relative grid min-h-[34rem] content-center overflow-hidden px-7 py-16 text-center sm:px-12 lg:px-20">
             <div

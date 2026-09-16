@@ -1,0 +1,64 @@
+/**
+ * De Eclat — design tokens
+ * Mirror of tailwind.config.js and app/globals.css for use outside Next.js.
+ */
+
+:root {
+  /* Color */
+  --color-pearl: #fdfbf7;
+  --color-ruby: #b31b1b;
+  --color-charcoal: #333333;
+  --color-slate: #666666;
+  --color-champagne: #f6efe6;
+  --color-mist: #f9f3ed;
+
+  /* Semantic */
+  --color-background: var(--color-pearl);
+  --color-foreground: var(--color-charcoal);
+  --color-accent: var(--color-ruby);
+  --color-muted: var(--color-slate);
+
+  /* Typography families */
+  --font-script: "Pinyon Script", "Great Vibes", cursive;
+  --font-display: "Playfair Display", "Prata", Georgia, serif;
+  --font-sans: "Montserrat", "Lato", system-ui, sans-serif;
+
+  /* Type scale (rem) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-hero: clamp(5rem, 12vw, 10rem);
+
+  /* Letter-spacing — caps labels */
+  --track-caps-tight: 0.12em;
+  --track-caps-nav: 0.22em;
+  --track-caps-eyebrow: 0.28em;
+  --track-caps-section: 0.45em;
+
+  /* Spacing */
+  --space-section-y: clamp(4rem, 10vw, 7rem);
+  --space-card-padding: 2.5rem;
+  --radius-pill: 9999px;
+  --radius-card: 2.5rem;
+  --radius-card-inner: 2rem;
+
+  /* Shadow */
+  --shadow-soft: 0 24px 80px rgba(74, 44, 33, 0.08);
+  --shadow-jewel: 0 28px 90px rgba(179, 27, 27, 0.12);
+
+  /* Motion */
+  --duration-fast: 220ms;
+  --duration-base: 500ms;
+  --duration-slow: 700ms;
+  --ease-luxury: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Pattern */
+  --grid-size: 36px;
+  --grid-opacity: 0.035;
+}

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>De Eclat — Design Elements</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Pinyon+Script&family=Playfair+Display:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="design-tokens.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--font-sans);
+        color: var(--color-charcoal);
+        background:
+          linear-gradient(135deg, rgba(253, 251, 247, 0.94), rgba(253, 251, 247, 0.98)),
+          linear-gradient(45deg, rgba(179, 27, 27, 0.035) 25%, transparent 25%),
+          linear-gradient(-45deg, rgba(179, 27, 27, 0.035) 25%, transparent 25%);
+        background-position: 0 0, 0 0, 0 18px;
+        background-size: auto, 36px 36px, 36px 36px;
+        line-height: 1.6;
+      }
+
+      ::selection {
+        color: var(--color-pearl);
+        background: var(--color-ruby);
+      }
+
+      .wrap {
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 5rem;
+      }
+
+      .guide-header {
+        padding: 3rem 0 2rem;
+        border-bottom: 1px solid rgba(179, 27, 27, 0.12);
+        margin-bottom: 3rem;
+      }
+
+      .guide-header h1 {
+        font-family: var(--font-script);
+        font-size: clamp(3.5rem, 10vw, 6rem);
+        font-weight: 400;
+        line-height: 0.9;
+        color: var(--color-ruby);
+        margin: 0.5rem 0 0;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.45em;
+        text-transform: uppercase;
+        color: var(--color-ruby);
+        padding-inline: 0.45em;
+      }
+
+      .subtitle {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        max-width: 36rem;
+        margin-top: 1rem;
+        color: var(--color-charcoal);
+      }
+
+      nav.toc {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-top: 1.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+      }
+
+      nav.toc a {
+        color: var(--color-slate);
+        text-decoration: none;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid transparent;
+        transition: color var(--duration-fast), border-color var(--duration-fast);
+      }
+
+      nav.toc a:hover {
+        color: var(--color-ruby);
+        border-color: rgba(179, 27, 27, 0.35);
+      }
+
+      section {
+        margin-bottom: 4rem;
+        scroll-margin-top: 2rem;
+      }
+
+      section > h2 {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 500;
+        margin: 0 0 0.35rem;
+      }
+
+      section > .section-desc {
+        color: var(--color-slate);
+        margin: 0 0 1.75rem;
+        max-width: 40rem;
+      }
+
+      .panel {
+        border: 1px solid rgba(179, 27, 27, 0.1);
+        border-radius: var(--radius-card);
+        background: rgba(255, 255, 255, 0.45);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-soft);
+        backdrop-filter: blur(12px);
+      }
+
+      .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 1rem;
+      }
+
+      .swatch {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      .swatch-color {
+        height: 88px;
+      }
+
+      .swatch-meta {
+        padding: 0.75rem;
+        background: rgba(255, 255, 255, 0.8);
+        font-size: 0.75rem;
+      }
+
+      .swatch-meta strong {
+        display: block;
+        font-size: 0.8rem;
+        margin-bottom: 0.2rem;
+      }
+
+      .type-specimen {
+        padding: 1.25rem 0;
+        border-bottom: 1px solid rgba(179, 27, 27, 0.08);
+      }
+
+      .type-specimen:last-child {
+        border-bottom: none;
+      }
+
+      .type-meta {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        color: var(--color-slate);
+        margin-bottom: 0.5rem;
+      }
+
+      .font-script {
+        font-family: var(--font-script);
+        color: var(--color-ruby);
+      }
+
+      .font-display {
+        font-family: var(--font-display);
+      }
+
+      .font-sans {
+        font-family: var(--font-sans);
+      }
+
+      .logo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1.25rem;
+      }
+
+      .logo-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 160px;
+        padding: 1.25rem;
+        border-radius: 1.25rem;
+        border: 1px solid rgba(179, 27, 27, 0.08);
+        background: var(--color-pearl);
+      }
+
+      .logo-card.dark {
+        background: var(--color-ruby);
+      }
+
+      .logo-card img {
+        max-width: 100%;
+        max-height: 100px;
+        object-fit: contain;
+      }
+
+      .logo-card figcaption {
+        margin-top: 0.75rem;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--color-slate);
+        text-align: center;
+      }
+
+      .logo-card.dark figcaption {
+        color: rgba(253, 251, 247, 0.75);
+      }
+
+      .lockup-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .lockup-row img.icon {
+        width: 72px;
+        height: 72px;
+      }
+
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.625rem 1.85rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        text-indent: 0.22em;
+        border-radius: var(--radius-pill);
+        transition: background var(--duration-base), color var(--duration-base);
+        cursor: default;
+      }
+
+      .btn-outline {
+        border: 1px solid rgba(179, 27, 27, 0.2);
+        color: var(--color-ruby);
+        background: transparent;
+      }
+
+      .btn-outline:hover {
+        background: var(--color-ruby);
+        color: var(--color-pearl);
+      }
+
+      .btn-solid {
+        background: var(--color-ruby);
+        color: var(--color-pearl);
+        border: 1px solid var(--color-ruby);
+      }
+
+      .form-demo {
+        max-width: 28rem;
+      }
+
+      .form-field {
+        width: 100%;
+        border: 1px solid rgba(179, 27, 27, 0.16);
+        background: rgba(255, 255, 255, 0.58);
+        padding: 1rem 1.1rem;
+        color: var(--color-charcoal);
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        margin-top: 0.35rem;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.28em;
+        margin-top: 1rem;
+      }
+
+      .card-demo {
+        border-radius: var(--radius-card);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.3);
+        padding: 1rem;
+        box-shadow: var(--shadow-soft);
+        max-width: 320px;
+      }
+
+      .card-demo-inner {
+        border-radius: var(--radius-card-inner);
+        border: 1px solid rgba(179, 27, 27, 0.1);
+        background: rgba(253, 251, 247, 0.7);
+        padding: 2rem;
+      }
+
+      .pattern-block {
+        height: 120px;
+        border-radius: 1rem;
+        background-color: var(--color-pearl);
+        background-image: url("assets/patterns/diamond-grid-pattern.svg");
+        border: 1px solid rgba(179, 27, 27, 0.1);
+      }
+
+      .grid-2 {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      @media (min-width: 768px) {
+        .grid-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      footer.guide-footer {
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(179, 27, 27, 0.12);
+        font-size: 0.8rem;
+        color: var(--color-slate);
+      }
+
+      footer.guide-footer a {
+        color: var(--color-ruby);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="guide-header">
+        <p class="eyebrow">Brand guideline</p>
+        <h1>De Eclat</h1>
+        <p class="subtitle">
+          Visual design system for web and collateral — colors, typography, logos, and UI components aligned with the live site.
+        </p>
+        <nav class="toc" aria-label="Sections">
+          <a href="#colors">Colors</a>
+          <a href="#typography">Typography</a>
+          <a href="#logos">Logos</a>
+          <a href="#patterns">Patterns</a>
+          <a href="#components">Components</a>
+          <a href="#docs">Documentation</a>
+        </nav>
+      </header>
+
+      <section id="colors">
+        <h2>Color palette</h2>
+        <p class="section-desc">
+          Pearl cardstock background, ruby ink accent, charcoal and slate for type hierarchy.
+        </p>
+        <div class="panel">
+          <div class="swatch-grid">
+            <div class="swatch">
+              <div class="swatch-color" style="background: #fdfbf7"></div>
+              <div class="swatch-meta"><strong>Pearl</strong>#FDFBF7<br />Background</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: #b31b1b"></div>
+              <div class="swatch-meta"><strong>Ruby</strong>#B31B1B<br />Brand accent</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: #333333"></div>
+              <div class="swatch-meta"><strong>Charcoal</strong>#333333<br />Primary text</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: #666666"></div>
+              <div class="swatch-meta"><strong>Slate</strong>#666666<br />Secondary text</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: #f6efe6"></div>
+              <div class="swatch-meta"><strong>Champagne</strong>#F6EFE6<br />Warm panel</div>
+            </div>
+            <div class="swatch">
+              <div class="swatch-color" style="background: #f9f3ed"></div>
+              <div class="swatch-meta"><strong>Mist</strong>#F9F3ED<br />Soft fill</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="typography">
+        <h2>Typography</h2>
+        <p class="section-desc">
+          Three-font system: Pinyon Script (mark only), Playfair Display (headlines), Montserrat (body &amp; UI). See <a href="typography.md">typography.md</a> for full usage rules.
+        </p>
+        <div class="panel">
+          <div class="type-specimen">
+            <p class="type-meta">Pinyon Script — brand / hero only</p>
+            <p class="font-script" style="font-size: clamp(3rem, 8vw, 5.5rem); line-height: 0.9; margin: 0">
+              De Eclat
+            </p>
+          </div>
+          <div class="type-specimen">
+            <p class="type-meta">Playfair Display — section &amp; editorial</p>
+            <p class="font-display" style="font-size: 2.25rem; line-height: 1.2; margin: 0; font-weight: 500">
+              A quietly confident authority in diamonds, stones and timepieces.
+            </p>
+          </div>
+          <div class="type-specimen">
+            <p class="type-meta">Montserrat — body (16px / leading 2)</p>
+            <p class="font-sans" style="font-size: 1rem; line-height: 2; color: #666; max-width: 36rem; margin: 0">
+              For over 15 years, De Eclat has served jewelers, buyers and trusted partners through a disciplined supply network rooted in Hong Kong.
+            </p>
+          </div>
+          <div class="type-specimen">
+            <p class="type-meta">Montserrat uppercase — eyebrow (tracking 0.45em)</p>
+            <p class="eyebrow" style="margin: 0">Hong Kong</p>
+          </div>
+          <div class="type-specimen">
+            <p class="type-meta">Montserrat uppercase — navigation (tracking 0.28em)</p>
+            <p class="font-sans" style="font-size: 0.75rem; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; margin: 0">
+              Collection · Services · Presence
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="logos">
+        <h2>Logo system</h2>
+        <p class="section-desc">
+          Icon mark, script wordmarks, and horizontal lockup. Files live under <code>logos/</code> — see <a href="logo-usage.md">logo-usage.md</a>.
+        </p>
+        <div class="panel">
+          <div class="logo-grid">
+            <figure class="logo-card">
+              <img src="logos/icon/deeclat-icon-primary.svg" alt="De Eclat icon mark" width="100" height="100" />
+              <figcaption>deeclat-icon-primary.svg</figcaption>
+            </figure>
+            <figure class="logo-card">
+              <img src="logos/wordmark/deeclat-wordmark-script-ruby.svg" alt="Ruby script wordmark" height="56" />
+              <figcaption>wordmark — ruby</figcaption>
+            </figure>
+            <figure class="logo-card">
+              <img src="logos/wordmark/deeclat-wordmark-script-charcoal.svg" alt="Charcoal script wordmark" height="56" />
+              <figcaption>wordmark — charcoal</figcaption>
+            </figure>
+            <figure class="logo-card dark">
+              <img src="logos/wordmark/deeclat-wordmark-script-pearl.svg" alt="Pearl script wordmark" height="56" />
+              <figcaption>wordmark — pearl on ruby</figcaption>
+            </figure>
+            <figure class="logo-card">
+              <img src="logos/wordmark/deeclat-wordmark-display-serif.svg" alt="Display serif wordmark" height="40" />
+              <figcaption>wordmark — display serif</figcaption>
+            </figure>
+          </div>
+          <div style="margin-top: 2rem">
+            <p class="type-meta">Horizontal lockup (compose for production)</p>
+            <div class="lockup-row panel" style="margin-top: 0.75rem">
+              <img class="icon" src="logos/icon/deeclat-icon-primary.svg" alt="" />
+              <span class="font-script" style="font-size: 3.5rem; line-height: 1; color: var(--color-ruby)">De Eclat</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="patterns">
+        <h2>Graphic patterns</h2>
+        <p class="section-desc">Diamond grid watermark at &lt;5% perceived opacity on pearl.</p>
+        <div class="panel">
+          <div class="pattern-block" role="img" aria-label="Diamond grid pattern sample"></div>
+          <p style="font-size: 0.8rem; color: var(--color-slate); margin: 1rem 0 0">
+            Asset: <code>assets/patterns/diamond-grid-pattern.svg</code> · Site CSS: 36px tile in <code>app/globals.css</code>
+          </p>
+        </div>
+      </section>
+
+      <section id="components">
+        <h2>UI components</h2>
+        <p class="section-desc">Patterns used on the marketing site (nav CTA, cards, forms).</p>
+        <div class="grid-2">
+          <div class="panel">
+            <p class="type-meta">Buttons</p>
+            <div class="btn-row">
+              <span class="btn btn-outline">Inquire</span>
+              <span class="btn btn-solid">Contact Us</span>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="type-meta">Card shell</p>
+            <div class="card-demo">
+              <div class="card-demo-inner">
+                <p class="eyebrow" style="margin: 0">Bespoke</p>
+                <p class="font-display" style="font-size: 1.5rem; margin: 0.75rem 0 0">Jewelry</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 1.5rem">
+          <p class="type-meta">Form field</p>
+          <div class="form-demo">
+            <label class="form-label" for="demo-name">Full name</label>
+            <input class="form-field" id="demo-name" type="text" placeholder="Your name" />
+            <label class="form-label" for="demo-interest">Subject of interest</label>
+            <select class="form-field" id="demo-interest">
+              <option>Diamonds</option>
+              <option>Watch servicing</option>
+              <option>Bespoke jewelry</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section id="docs">
+        <h2>Guideline documents</h2>
+        <p class="section-desc">Markdown references in this folder.</p>
+        <div class="panel font-sans" style="font-size: 0.95rem">
+          <ul style="margin: 0; padding-left: 1.25rem; line-height: 2">
+            <li><a href="README.md">README.md</a> — folder overview</li>
+            <li><a href="typography.md">typography.md</a> — fonts &amp; where to use them</li>
+            <li><a href="colors.md">colors.md</a> — palette rules</li>
+            <li><a href="logo-usage.md">logo-usage.md</a> — clear space &amp; misuse</li>
+            <li><a href="voice-and-tone.md">voice-and-tone.md</a> — writing style</li>
+            <li><a href="spacing-and-layout.md">spacing-and-layout.md</a> — grid &amp; motion</li>
+            <li><a href="photography-and-imagery.md">photography-and-imagery.md</a> — photo direction</li>
+            <li><a href="contact-information.md">contact-information.md</a> — approved contact copy</li>
+            <li><a href="design-tokens.css">design-tokens.css</a> — CSS variables</li>
+          </ul>
+        </div>
+      </section>
+
+      <footer class="guide-footer">
+        <p>
+          Open this file in a browser: <code>brand_guideline/design-elements.html</code>. Production site tokens mirror
+          <code>tailwind.config.js</code> and <code>design.md</code>.
+        </p>
+        <p>© De Eclat. Internal brand reference.</p>
+      </footer>
+    </div>
+  </body>
+</html>

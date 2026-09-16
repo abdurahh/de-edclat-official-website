@@ -22,19 +22,23 @@ export function ProductCard({
   className = ""
 }: ProductCardProps) {
   return (
-    <Link href={href} className={`block ${className}`} aria-label={`${title} coming soon`}>
+    <Link
+      href={href}
+      className={`block h-full ${className}`.trim()}
+      aria-label={`${title} coming soon`}
+    >
       <motion.article
         whileHover={{ scale: 1.02, y: -8 }}
         transition={{ type: "spring", stiffness: 180, damping: 22 }}
-        className="card-shell group rounded-[2rem] border border-ruby/8 bg-white/60 p-2.5 shadow-soft backdrop-blur-xl transition-shadow duration-500 hover:shadow-jewel"
+        className="card-shell group flex h-full flex-col rounded-[2rem] border border-ruby/8 bg-white/60 p-2.5 shadow-soft backdrop-blur-xl transition-shadow duration-500 hover:shadow-jewel"
       >
-        <div className="card-media relative aspect-[3/4] rounded-[1.65rem] bg-mist sm:aspect-[4/5]">
+        <div className="card-media relative aspect-[4/5] w-full shrink-0 rounded-[1.65rem] bg-mist">
           <Image
             src={image}
             alt={title}
             fill
             quality={90}
-            sizes="(min-width: 1024px) 28vw, 88vw"
+            sizes="(min-width: 1024px) 22rem, 88vw"
             style={{ objectPosition: imagePosition }}
             className="object-cover brightness-[1.03] saturate-[0.88] contrast-[0.98] transition duration-700 ease-out group-hover:scale-[1.04]"
           />
@@ -43,7 +47,7 @@ export function ProductCard({
             className="pointer-events-none absolute inset-0 bg-gradient-to-t from-pearl/45 via-pearl/5 to-white/20"
           />
         </div>
-        <div className="card-body flex items-end justify-between gap-6 px-4 py-5">
+        <div className="card-body mt-auto flex min-h-[5.5rem] items-end justify-between gap-6 px-4 py-5">
           <div>
             <p className="caps-label caps-36 text-xs font-medium uppercase text-ruby/70">
               {eyebrow}
@@ -52,7 +56,7 @@ export function ProductCard({
               {title}
             </h3>
           </div>
-          <span className="h-px w-14 bg-ruby/25 transition-all duration-500 group-hover:w-20" />
+          <span className="h-px w-14 shrink-0 bg-ruby/25 transition-all duration-500 group-hover:w-20" />
         </div>
       </motion.article>
     </Link>

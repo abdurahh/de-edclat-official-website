@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Pinyon_Script, Playfair_Display } from "next/font/google";
+import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 const pinyon = Pinyon_Script({
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body
         className={`${pinyon.variable} ${playfair.variable} ${montserrat.variable} bg-pearl font-sans antialiased`}
       >
+        <SiteHeader />
         {children}
       </body>
     </html>

@@ -1,22 +1,9 @@
-import Link from "next/link";
 import { ContactForm } from "@/components/ContactForm";
 import { ScrollReveal } from "@/components/ScrollReveal";
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen px-5 py-8">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between rounded-full border border-ruby/10 bg-pearl/70 px-5 py-3 shadow-soft backdrop-blur-2xl">
-        <Link href="/" className="font-script text-3xl leading-none text-ruby">
-          De Eclat
-        </Link>
-        <Link
-          href="/"
-          className="nav-cta rounded-full border border-ruby/20 text-xs font-semibold uppercase text-ruby transition hover:bg-ruby hover:text-pearl"
-        >
-          Home
-        </Link>
-      </nav>
-
+    <main className="min-h-screen px-5 pt-28">
       <section className="mx-auto grid max-w-7xl gap-10 py-20 lg:grid-cols-[0.88fr_1.12fr] lg:py-28">
         <ScrollReveal className="self-start">
           <p className="section-eyebrow text-xs font-semibold uppercase text-ruby">
