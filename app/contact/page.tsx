@@ -22,14 +22,14 @@ export default function ContactPage() {
               <p className="caps-label caps-35 text-xs font-semibold uppercase text-ruby">
                 Phone
               </p>
-              <p className="mt-4 text-lg text-charcoal">HK: +852-6097 0143</p>
+              <p className="mt-4 text-lg text-charcoal">HK: +852 6142 6130</p>
             </div>
 
             <div className="card-shell rounded-[2rem] border border-ruby/10 bg-white/50 p-6 shadow-soft backdrop-blur-xl">
               <p className="caps-label caps-35 text-xs font-semibold uppercase text-ruby">
                 Email
               </p>
-              <p className="mt-4 text-lg text-charcoal">deeclat@gmail.com</p>
+              <p className="mt-4 text-lg text-charcoal">hello@deeclat.com</p>
             </div>
           </div>
         </ScrollReveal>

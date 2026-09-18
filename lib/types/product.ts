@@ -13,9 +13,23 @@ export type WatchDetails = {
   box_and_papers?: string;
 };
 
+/** One stone/diamond entry on a jewelry piece. */
+export type JewelryStone = {
+  name: string;
+  size?: string;
+  /** Optional count / piece number. */
+  quantity?: string;
+};
+
 export type JewelryDetails = {
+  /** Metal / piece weight (e.g. "Gold · 7g", "18K · 12.4ct"). */
+  weight?: string;
+  /** @deprecated Prefer `weight`. Kept for older products. */
   material?: string;
+  /** @deprecated Prefer `stones`. Kept for older products. */
   gemstones?: string;
+  stones?: JewelryStone[];
+  /** @deprecated Prefer `weight`. Kept for older products. */
   carat_weight?: string;
   size_dimensions?: string;
   hallmark?: string;
@@ -55,15 +69,43 @@ export const WATCH_DETAIL_FIELDS = [
 }>;
 
 export const JEWELRY_DETAIL_FIELDS = [
-  { key: "material", label: "Material / metal" },
-  { key: "gemstones", label: "Gemstone(s)" },
-  { key: "carat_weight", label: "Carat weight" },
+  { key: "weight", label: "Weight" },
   { key: "size_dimensions", label: "Size / dimensions" },
   { key: "hallmark", label: "Hallmark" }
 ] as const satisfies ReadonlyArray<{
   key: keyof JewelryDetails;
   label: string;
 }>;
+
+/** Prefer `weight`; fall back to legacy material + carat_weight. */
+export function formatJewelryWeight(details: ProductDetails): string {
+  if (details.weight?.trim()) return details.weight.trim();
+  return [details.material?.trim(), details.carat_weight?.trim()]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+export function emptyJewelryStone(): JewelryStone {
+  return { name: "", size: "", quantity: "" };
+}
+
+/** Prefer structured `stones`; fall back to legacy `gemstones` string. */
+export function getJewelryStones(details: ProductDetails): JewelryStone[] {
+  if (Array.isArray(details.stones) && details.stones.length > 0) {
+    return details.stones;
+  }
+  if (details.gemstones?.trim()) {
+    return [{ name: details.gemstones.trim() }];
+  }
+  return [];
+}
+
+export function formatJewelryStone(stone: JewelryStone): string {
+  const parts = [stone.name.trim()];
+  if (stone.size?.trim()) parts.push(stone.size.trim());
+  if (stone.quantity?.trim()) parts.push(`×${stone.quantity.trim()}`);
+  return parts.filter(Boolean).join(" · ");
+}
 
 export function formatPrice(price: number, currency = "HKD") {
   return new Intl.NumberFormat("en-HK", {

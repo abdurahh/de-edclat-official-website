@@ -8,13 +8,23 @@ out/
 # env secrets
 .env
 .env*.local
+.env*
 
 # OS / editor
 .DS_Store
 *.pem
+.cursor/
 
 # debug / misc
 npm-debug.log*
 .vercel
 *.tmp
 *.new
+
+# local deploy / agent scratch (do not ship)
+.deeclat-deploy-tmp/
+.deeclat-official-args.json
+
+# brand vectorization previews (keep editable SVG only)
+brand_asstes/editable/*preview*
+brand_asstes/editable/_*

@@ -7,7 +7,10 @@ import { productInquiryMessage } from "@/lib/whatsapp";
 import {
   JEWELRY_DETAIL_FIELDS,
   WATCH_DETAIL_FIELDS,
+  formatJewelryStone,
+  formatJewelryWeight,
   formatPrice,
+  getJewelryStones,
   stockLabel,
   type Product
 } from "@/lib/types/product";
@@ -26,9 +29,21 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
     product.category === "watch"
       ? WATCH_DETAIL_FIELDS
       : JEWELRY_DETAIL_FIELDS;
-  const visibleDetails = fields.filter(
-    (field) => product.details[field.key]
-  );
+  const visibleDetails = fields.filter((field) => {
+    if (field.key === "weight") {
+      return formatJewelryWeight(product.details).length > 0;
+    }
+    const value = product.details[field.key];
+    return typeof value === "string" && value.trim().length > 0;
+  });
+  const stones =
+    product.category === "jewelry" ? getJewelryStones(product.details) : [];
+
+  function detailValue(key: (typeof fields)[number]["key"]): string {
+    if (key === "weight") return formatJewelryWeight(product.details);
+    const value = product.details[key];
+    return typeof value === "string" ? value : "";
+  }
 
   return (
     <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
@@ -92,7 +107,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
           </p>
         ) : null}
 
-        {visibleDetails.length > 0 ? (
+        {visibleDetails.length > 0 || stones.length > 0 ? (
           <dl className="mt-10 divide-y divide-ruby/10 border-y border-ruby/10">
             {visibleDetails.map((field) => (
               <div
@@ -102,7 +117,18 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                 <dt className="uppercase tracking-[0.18em] text-slate">
                   {field.label}
                 </dt>
-                <dd className="text-charcoal">{product.details[field.key]}</dd>
+                <dd className="text-charcoal">{detailValue(field.key)}</dd>
+              </div>
+            ))}
+            {stones.map((stone, index) => (
+              <div
+                key={`stone-${index}-${stone.name}`}
+                className="grid grid-cols-[8.5rem_1fr] gap-4 py-4 text-sm sm:grid-cols-[10rem_1fr]"
+              >
+                <dt className="uppercase tracking-[0.18em] text-slate">
+                  {stones.length > 1 ? `Stone ${index + 1}` : "Stone"}
+                </dt>
+                <dd className="text-charcoal">{formatJewelryStone(stone)}</dd>
               </div>
             ))}
           </dl>

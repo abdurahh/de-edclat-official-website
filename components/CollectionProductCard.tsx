@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
+  formatJewelryWeight,
   formatPrice,
+  getJewelryStones,
   stockLabel,
   type Product
 } from "@/lib/types/product";
@@ -16,10 +18,11 @@ type CollectionProductCardProps = {
 export function CollectionProductCard({ product }: CollectionProductCardProps) {
   const href = `/collection/${product.category}/${product.id}`;
   const image = product.images[0] ?? "/images/watch-cover.jpeg";
+  const stones = getJewelryStones(product.details);
   const highlight =
     product.category === "watch"
       ? product.details.reference_number || product.details.case_diameter
-      : product.details.material || product.details.gemstones;
+      : formatJewelryWeight(product.details) || stones[0]?.name;
 
   return (
     <Link href={href} className="block h-full" aria-label={`${product.brand} ${product.name}`}>

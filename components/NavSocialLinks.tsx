@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const EMAIL = "hello@deeclat.com";
+const WHATSAPP_HREF = "https://wa.me/85261426130";
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -55,7 +56,7 @@ function MailIcon({ className }: { className?: string }) {
 }
 
 const iconButtonClass =
-  "inline-flex h-9 w-9 items-center justify-center rounded-full border border-ruby/20 text-ruby transition duration-500 hover:bg-ruby hover:text-pearl";
+  "inline-flex h-8 w-8 items-center justify-center rounded-full border border-ruby/20 text-ruby transition duration-500 hover:bg-ruby hover:text-pearl sm:h-9 sm:w-9";
 
 export function NavSocialLinks() {
   const [mailPinned, setMailPinned] = useState(false);
@@ -78,7 +79,7 @@ export function NavSocialLinks() {
   }, [mailPinned]);
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 sm:gap-2">
       <a
         href="https://instagram.com"
         target="_blank"
@@ -86,16 +87,16 @@ export function NavSocialLinks() {
         className={iconButtonClass}
         aria-label="Instagram"
       >
-        <InstagramIcon className="h-4 w-4" />
+        <InstagramIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </a>
       <a
-        href="https://whatsapp.com"
+        href={WHATSAPP_HREF}
         target="_blank"
         rel="noopener noreferrer"
         className={iconButtonClass}
         aria-label="WhatsApp"
       >
-        <WhatsAppIcon className="h-4 w-4" />
+        <WhatsAppIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
       </a>
       <div
         ref={mailRef}
@@ -114,7 +115,7 @@ export function NavSocialLinks() {
           aria-expanded={showEmail}
           onClick={() => setMailPinned((pinned) => !pinned)}
         >
-          <MailIcon className="h-4 w-4" />
+          <MailIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
         </button>
         <div
           className={`absolute right-0 top-full z-50 pt-2 transition duration-300 ${

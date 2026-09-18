@@ -38,8 +38,18 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
   const pathname = request.nextUrl.pathname;
+  const isResetPasswordRoute = pathname.startsWith("/admin/reset-password");
   const isAdminRoute =
-    pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("/admin/login") &&
+    !isResetPasswordRoute;
+
+  if (isResetPasswordRoute && !claims) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin/login";
+    url.searchParams.set("error", "reset-link");
+    return NextResponse.redirect(url);
+  }
 
   if (isAdminRoute) {
     const isAdmin = claims?.app_metadata?.role === "admin";

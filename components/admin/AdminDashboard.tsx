@@ -7,8 +7,12 @@ import { createClient } from "@/lib/supabase/client";
 import {
   JEWELRY_DETAIL_FIELDS,
   WATCH_DETAIL_FIELDS,
+  emptyJewelryStone,
+  formatJewelryWeight,
   formatPrice,
+  getJewelryStones,
   stockLabel,
+  type JewelryStone,
   type Product,
   type ProductCategory,
   type ProductDetails,
@@ -47,6 +51,16 @@ const emptyForm = (): FormState => ({
 });
 
 function productToForm(product: Product): FormState {
+  const details = { ...(product.details ?? {}) };
+  if (product.category === "jewelry") {
+    const stones = getJewelryStones(details);
+    details.stones = stones.length > 0 ? stones : [emptyJewelryStone()];
+    const weight = formatJewelryWeight(details);
+    if (weight) details.weight = weight;
+    delete details.gemstones;
+    delete details.material;
+    delete details.carat_weight;
+  }
   return {
     category: product.category,
     name: product.name,
@@ -56,9 +70,46 @@ function productToForm(product: Product): FormState {
     condition: product.condition ?? "",
     stock_status: product.stock_status,
     is_active: product.is_active,
-    details: product.details ?? {},
+    details,
     images: product.images ?? []
   };
+}
+
+function sanitizeDetails(details: ProductDetails): ProductDetails {
+  const next: ProductDetails = {};
+
+  for (const [key, value] of Object.entries(details)) {
+    if (
+      key === "stones" ||
+      key === "gemstones" ||
+      key === "material" ||
+      key === "carat_weight"
+    ) {
+      continue;
+    }
+    if (typeof value === "string" && value.trim().length > 0) {
+      (next as Record<string, string>)[key] = value.trim();
+    }
+  }
+
+  if (Array.isArray(details.stones)) {
+    const stones = details.stones
+      .map((stone) => ({
+        name: stone.name.trim(),
+        ...(stone.size?.trim() ? { size: stone.size.trim() } : {}),
+        ...(stone.quantity?.trim() ? { quantity: stone.quantity.trim() } : {})
+      }))
+      .filter((stone) => stone.name.length > 0);
+    if (stones.length > 0) next.stones = stones;
+  }
+
+  return next;
+}
+
+function jewelryStonesFromForm(details: ProductDetails): JewelryStone[] {
+  const stones = details.stones;
+  if (Array.isArray(stones) && stones.length > 0) return stones;
+  return [emptyJewelryStone()];
 }
 
 export function AdminDashboard({
@@ -170,11 +221,7 @@ export function AdminDashboard({
       stock_status: form.stock_status,
       is_active: form.is_active,
       images: form.images,
-      details: Object.fromEntries(
-        Object.entries(form.details).filter(
-          ([, value]) => typeof value === "string" && value.trim().length > 0
-        )
-      )
+      details: sanitizeDetails(form.details)
     };
 
     const supabase = createClient();
@@ -333,13 +380,17 @@ export function AdminDashboard({
             </span>
             <select
               value={form.category}
-              onChange={(event) =>
+              onChange={(event) => {
+                const category = event.target.value as ProductCategory;
                 setForm((current) => ({
                   ...current,
-                  category: event.target.value as ProductCategory,
-                  details: {}
-                }))
-              }
+                  category,
+                  details:
+                    category === "jewelry"
+                      ? { stones: [emptyJewelryStone()] }
+                      : {}
+                }));
+              }}
               className="form-field mt-2 rounded-2xl"
             >
               <option value="watch">Watch</option>
@@ -456,7 +507,11 @@ export function AdminDashboard({
                   {field.label}
                 </span>
                 <input
-                  value={form.details[field.key] ?? ""}
+                  value={
+                    typeof form.details[field.key] === "string"
+                      ? form.details[field.key]
+                      : ""
+                  }
                   onChange={(event) =>
                     setForm((current) => ({
                       ...current,
@@ -471,6 +526,152 @@ export function AdminDashboard({
               </label>
             ))}
           </div>
+
+          {form.category === "jewelry" ? (
+            <div className="mt-6 space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate">
+                  Stones / diamonds
+                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setForm((current) => ({
+                      ...current,
+                      details: {
+                        ...current.details,
+                        stones: [
+                          ...jewelryStonesFromForm(current.details),
+                          emptyJewelryStone()
+                        ]
+                      }
+                    }))
+                  }
+                  className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-ruby transition hover:text-charcoal"
+                >
+                  Add stone
+                </button>
+              </div>
+
+              {jewelryStonesFromForm(form.details).map((stone, index) => (
+                <div
+                  key={`stone-${index}`}
+                  className="rounded-2xl border border-ruby/10 bg-pearl/40 p-4"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-[0.65rem] uppercase tracking-[0.2em] text-slate">
+                      Stone {index + 1}
+                    </p>
+                    {jewelryStonesFromForm(form.details).length > 1 ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((current) => {
+                            const stones = jewelryStonesFromForm(
+                              current.details
+                            ).filter((_, i) => i !== index);
+                            return {
+                              ...current,
+                              details: {
+                                ...current.details,
+                                stones:
+                                  stones.length > 0
+                                    ? stones
+                                    : [emptyJewelryStone()]
+                              }
+                            };
+                          })
+                        }
+                        className="text-[0.65rem] uppercase tracking-[0.18em] text-ruby"
+                      >
+                        Remove
+                      </button>
+                    ) : null}
+                  </div>
+                  <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                    <label className="block sm:col-span-1">
+                      <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                        Name
+                      </span>
+                      <input
+                        value={stone.name}
+                        placeholder="e.g. Diamond, Sapphire"
+                        onChange={(event) =>
+                          setForm((current) => {
+                            const stones = [
+                              ...jewelryStonesFromForm(current.details)
+                            ];
+                            stones[index] = {
+                              ...stones[index],
+                              name: event.target.value
+                            };
+                            return {
+                              ...current,
+                              details: { ...current.details, stones }
+                            };
+                          })
+                        }
+                        className="form-field mt-2 rounded-2xl"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                        Size
+                      </span>
+                      <input
+                        value={stone.size ?? ""}
+                        placeholder="e.g. 0.5 ct, 6mm"
+                        onChange={(event) =>
+                          setForm((current) => {
+                            const stones = [
+                              ...jewelryStonesFromForm(current.details)
+                            ];
+                            stones[index] = {
+                              ...stones[index],
+                              size: event.target.value
+                            };
+                            return {
+                              ...current,
+                              details: { ...current.details, stones }
+                            };
+                          })
+                        }
+                        className="form-field mt-2 rounded-2xl"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                        No.{" "}
+                        <span className="normal-case tracking-normal text-slate/70">
+                          (optional)
+                        </span>
+                      </span>
+                      <input
+                        value={stone.quantity ?? ""}
+                        placeholder="e.g. 2"
+                        onChange={(event) =>
+                          setForm((current) => {
+                            const stones = [
+                              ...jewelryStonesFromForm(current.details)
+                            ];
+                            stones[index] = {
+                              ...stones[index],
+                              quantity: event.target.value
+                            };
+                            return {
+                              ...current,
+                              details: { ...current.details, stones }
+                            };
+                          })
+                        }
+                        className="form-field mt-2 rounded-2xl"
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-8">
