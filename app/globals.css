@@ -133,3 +133,42 @@ a {
   background: rgba(255, 255, 255, 0.82);
   box-shadow: 0 0 0 4px rgba(179, 27, 27, 0.08);
 }
+
+/* Brand intro: paint a pearl shell before React hydrates */
+.brand-intro-shell {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  background: #fdfbf7;
+  pointer-events: none;
+}
+
+.brand-intro-mark {
+  position: relative;
+  display: flex;
+  width: 168px;
+  height: 168px;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-intro-ring {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+html[data-intro="pending"] {
+  overflow: hidden;
+}
+
+html[data-intro="pending"] .brand-intro-shell {
+  display: flex;
+}
+
+html[data-intro="done"] .brand-intro-shell {
+  display: none;
+}

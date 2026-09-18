@@ -27,39 +27,35 @@ export function CollectionProductCard({ product }: CollectionProductCardProps) {
   return (
     <Link href={href} className="block h-full" aria-label={`${product.brand} ${product.name}`}>
       <motion.article
-        whileHover={{ y: -6 }}
+        whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 200, damping: 24 }}
-        className="card-shell group flex h-full flex-col"
+        className="group flex h-full flex-col overflow-hidden rounded-lg bg-mist"
       >
-        <div className="card-media relative aspect-[3/4] w-full overflow-hidden bg-mist">
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne">
           <Image
             src={image}
             alt={`${product.brand} ${product.name}`}
             fill
             quality={90}
-            sizes="(min-width: 1024px) 22rem, (min-width: 640px) 45vw, 90vw"
+            sizes="(min-width: 1024px) 28vw, 45vw"
             className="object-cover transition duration-700 ease-out group-hover:scale-[1.03]"
           />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-pearl/30 via-transparent to-transparent"
-          />
         </div>
-        <div className="card-body mt-5 space-y-2 px-1">
-          <p className="caps-label caps-28 text-[0.65rem] font-semibold uppercase text-ruby/70">
+        <div className="space-y-1 px-2.5 pb-3.5 pt-3 sm:space-y-2 sm:px-4 sm:pb-5 sm:pt-4">
+          <p className="caps-label caps-28 text-[0.6rem] font-semibold uppercase text-ruby/70 sm:text-[0.65rem]">
             {product.brand}
           </p>
-          <h3 className="font-display text-2xl leading-snug text-charcoal">
+          <h3 className="font-display text-base leading-snug text-charcoal sm:text-xl">
             {product.name}
           </h3>
           {highlight ? (
-            <p className="text-sm text-slate">{highlight}</p>
+            <p className="text-xs text-slate sm:text-sm">{highlight}</p>
           ) : null}
-          <div className="flex items-baseline justify-between gap-4 pt-1">
-            <p className="text-sm font-medium tracking-wide text-charcoal">
+          <div className="flex items-baseline justify-between gap-2 pt-1.5 sm:gap-3 sm:pt-2">
+            <p className="text-xs font-medium tracking-wide text-charcoal sm:text-sm">
               {formatPrice(product.price, product.currency)}
             </p>
-            <p className="text-[0.65rem] uppercase tracking-[0.22em] text-slate">
+            <p className="text-[0.55rem] uppercase tracking-[0.18em] text-slate sm:text-[0.65rem] sm:tracking-[0.22em]">
               {stockLabel(product.stock_status)}
             </p>
           </div>

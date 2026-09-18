@@ -56,7 +56,18 @@ export function ProductCard({
               {title}
             </h3>
           </div>
-          <span className="h-px w-14 shrink-0 bg-ruby/25 transition-all duration-500 group-hover:w-20" />
+          <div className="flex shrink-0 flex-col items-end gap-2.5">
+            {/* eslint-disable-next-line @next/next/no-img-element -- SVG brand mark */}
+            <img
+              src="/brand/deeclat-icon-charcoal.svg"
+              alt=""
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain opacity-90 transition duration-500 group-hover:opacity-100"
+              aria-hidden
+            />
+            <span className="h-px w-14 bg-ruby/25 transition-all duration-500 group-hover:w-20" />
+          </div>
         </div>
       </motion.article>
     </Link>

@@ -44,7 +44,7 @@ export default function Home() {
               De Eclat
             </h1>
             <p className="mt-7 max-w-xl font-display text-3xl leading-tight text-charcoal sm:text-5xl">
-              A quietly confident authority in diamonds, stones and timepieces.
+              The Brilliant collection. One stop for watches and jewelry.
             </p>
             <p className="mt-6 max-w-xl text-base leading-8 text-slate">
               For over 15 years, De Eclat has served jewelers, buyers and
@@ -78,7 +78,7 @@ export default function Home() {
               The Collection
             </p>
             <h2 className="mt-5 font-display text-4xl leading-tight text-charcoal sm:text-6xl">
-              Minimal presentation, exceptional material presence.
+              Explore the Brilliant collection.
             </h2>
           </ScrollReveal>
           <div className="mx-auto mt-16 flex max-w-4xl flex-col items-stretch gap-6 sm:flex-row sm:justify-center lg:gap-8">
@@ -100,7 +100,7 @@ export default function Home() {
             Private Inquiry
           </p>
           <h2 className="mt-5 font-display text-4xl leading-tight sm:text-6xl">
-            Begin a measured conversation with De Eclat.
+            Get in touch with us. We're here to help.
           </h2>
           <Link
             href="/contact"

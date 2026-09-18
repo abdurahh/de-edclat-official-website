@@ -4,6 +4,18 @@ Keep this file **small**. Each chat: add a short dated section (bullets only). D
 
 ---
 
+## 2026-09-18 — Collection UI + mobile nav icons
+
+- **Home category cards** (`ProductCard`): charcoal Deeclat icon above ruby line (`/brand/deeclat-icon-charcoal.svg` from editable mark)
+- **Collection product cards:** full mist panel + light `rounded-lg`; image `aspect-[4/5]`; tighter mobile type/padding
+- **Collection grid:** `grid-cols-2` mobile → `lg:grid-cols-3` (peek next row on ~640×915); was filling viewport at 1-col
+- **Header nav text:** charcoal semibold + ruby hover
+- **Mobile nav ≤455px** (`screens.nav: 456px`): centered icon-only Watch / Jewelry; ≥456px text labels
+- **Icons:** `/icons/watch.png` · `/icons/jewelry-ring.png` via CSS mask; size ~20px; default **ruby**, hover **charcoal**
+- Paths: `ProductCard.tsx` · `CollectionProductCard.tsx` · `app/collection/[category]/page.tsx` · `SiteHeader.tsx` · `tailwind.config.js` · `public/brand/` · `public/icons/`
+
+---
+
 ## 2026-09-18 — Favicon (ruby icon) + jewelry Weight
 
 - **Tab favicon:** ruby Deeclat icon (cropped, transparent) via Next.js `app/icon.png` + `app/apple-icon.png`; also `public/favicon.png` · `public/brand/deeclat-icon.png` (+512)

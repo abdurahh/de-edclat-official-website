@@ -6,6 +6,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        nav: "456px"
+      },
       colors: {
         pearl: "#FDFBF7",
         ruby: "#B31B1B",

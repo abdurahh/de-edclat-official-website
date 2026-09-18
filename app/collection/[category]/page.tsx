@@ -92,11 +92,11 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
         </ScrollReveal>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-6xl">
+      <section className="relative z-10 mx-auto max-w-7xl">
         {products.length === 0 ? (
           <ContactFallback />
         ) : (
-          <div className="grid grid-cols-1 gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-x-6 sm:gap-y-10 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-12">
             {products.map((product) => (
               <ScrollReveal key={product.id}>
                 <CollectionProductCard product={product} />
@@ -107,7 +107,7 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
       </section>
 
       {products.length > 0 ? (
-        <p className="relative z-10 mx-auto mt-20 max-w-6xl text-center text-sm text-slate">
+        <p className="relative z-10 mx-auto mt-20 max-w-7xl text-center text-sm text-slate">
           Prefer a private conversation?{" "}
           <Link href="/contact" className="text-ruby underline-offset-4 hover:underline">
             Contact us
