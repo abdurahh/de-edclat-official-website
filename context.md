@@ -7,11 +7,12 @@ Keep this file **small**. Each chat: add a short dated section (bullets only). D
 ## 2026-09-18 — Brand loading screen
 
 - Full-screen pearl intro: ruby Deeclat icon + thin ruby progress ring
-- Runs on **every route** (home, watch/jewelry collections, detail); skipped on `/admin`
-- Waits until page `<img>` set stabilizes (eager product images) so scroll doesn’t re-fetch
+- Runs on **every route change** (home, watch/jewelry, detail) via `useLayoutEffect`; skipped on `/admin`
+- No session skip — loader returns on each navigation
+- Waits until page `<img>` set stabilizes (`waitForPageImages` + eager product/cover images) so full-page scroll doesn’t re-fetch
 - Pre-hydration shell in layout + `data-intro`; do not `remove()` shell DOM (breaks React)
 - Web icon: `public/brand/deeclat-icon-primary.svg` (optimized vector)
-- Paths: `components/BrandLoader.tsx` · `lib/preload-assets.ts` · `app/layout.tsx` · `app/globals.css`
+- Paths: `components/BrandLoader.tsx` · `lib/preload-assets.ts` · `app/layout.tsx` · `app/globals.css` · `CollectionProductCard.tsx` · `ProductCard.tsx` · `ProductDetailView.tsx`
 
 ---
 
