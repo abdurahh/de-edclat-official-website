@@ -36,6 +36,7 @@ export function CollectionProductCard({ product }: CollectionProductCardProps) {
             src={image}
             alt={`${product.brand} ${product.name}`}
             fill
+            loading="eager"
             quality={90}
             sizes="(min-width: 1024px) 28vw, 45vw"
             className="object-cover transition duration-700 ease-out group-hover:scale-[1.03]"

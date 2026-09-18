@@ -37,6 +37,7 @@ export function ProductCard({
             src={image}
             alt={title}
             fill
+            loading="eager"
             quality={90}
             sizes="(min-width: 1024px) 22rem, 88vw"
             style={{ objectPosition: imagePosition }}

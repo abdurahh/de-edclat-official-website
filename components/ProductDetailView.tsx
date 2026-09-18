@@ -77,6 +77,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
                   src={image}
                   alt=""
                   fill
+                  loading="eager"
                   sizes="120px"
                   className="object-cover"
                 />

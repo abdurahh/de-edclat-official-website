@@ -2,10 +2,11 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
-import { PRELOAD_ASSETS } from "@/lib/preload-assets";
-
-export const INTRO_SESSION_KEY = "deeclat-intro-loaded";
+import { useLayoutEffect, useState, type ReactNode } from "react";
+import {
+  getSeedAssetsForPath,
+  waitForPageImages
+} from "@/lib/preload-assets";
 
 const RING_SIZE = 168;
 const RING_STROKE = 1.75;
@@ -16,37 +17,21 @@ type BrandLoaderProps = {
   children: ReactNode;
 };
 
-function loadAsset(src: string): Promise<void> {
-  return new Promise((resolve) => {
-    const image = new window.Image();
-    image.decoding = "async";
-    image.onload = () => resolve();
-    image.onerror = () => resolve();
-    image.src = src;
-  });
-}
-
-function hasCompletedIntro(): boolean {
-  try {
-    return sessionStorage.getItem(INTRO_SESSION_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export function BrandLoader({ children }: BrandLoaderProps) {
   const pathname = usePathname();
   const skipIntro = pathname.startsWith("/admin");
 
   const [progress, setProgress] = useState(0);
+  // Overlay is owned by effects so SSR stays aligned; hard loads use the CSS shell.
   const [showOverlay, setShowOverlay] = useState(false);
-  const [contentReady, setContentReady] = useState(skipIntro);
+  const [gateReady, setGateReady] = useState(skipIntro);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     function finishIntro() {
       document.documentElement.dataset.intro = "done";
+      setProgress(1);
       setShowOverlay(false);
-      setContentReady(true);
+      setGateReady(true);
     }
 
     if (skipIntro) {
@@ -54,48 +39,40 @@ export function BrandLoader({ children }: BrandLoaderProps) {
       return;
     }
 
-    if (hasCompletedIntro()) {
-      setProgress(1);
-      finishIntro();
-      return;
-    }
-
-    document.documentElement.dataset.intro = "pending";
+    const signal = { cancelled: false };
+    setGateReady(false);
+    setProgress(0);
     setShowOverlay(true);
-
-    let cancelled = false;
-    let loaded = 0;
-    const total = PRELOAD_ASSETS.length;
+    document.documentElement.dataset.intro = "pending";
 
     async function run() {
-      await Promise.all(
-        PRELOAD_ASSETS.map(async (src) => {
-          await loadAsset(src);
-          if (cancelled) return;
-          loaded += 1;
-          setProgress(loaded / total);
-        })
+      // Let the new route commit so product <img> nodes exist under the overlay.
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
       );
+      await new Promise((resolve) => setTimeout(resolve, 40));
 
-      if (cancelled) return;
+      if (signal.cancelled) return;
 
-      setProgress(1);
+      await waitForPageImages({
+        root: document.body,
+        seedAssets: getSeedAssetsForPath(pathname),
+        signal,
+        onProgress: (value) => {
+          if (!signal.cancelled) setProgress(value);
+        }
+      });
 
-      try {
-        sessionStorage.setItem(INTRO_SESSION_KEY, "1");
-      } catch {
-        // Ignore persistence failures.
-      }
-
+      if (signal.cancelled) return;
       finishIntro();
     }
 
     void run();
 
     return () => {
-      cancelled = true;
+      signal.cancelled = true;
     };
-  }, [skipIntro]);
+  }, [pathname, skipIntro]);
 
   const dashOffset = CIRCUMFERENCE * (1 - progress);
 
@@ -104,7 +81,7 @@ export function BrandLoader({ children }: BrandLoaderProps) {
       <AnimatePresence>
         {showOverlay ? (
           <motion.div
-            key="brand-loader"
+            key={`brand-loader-${pathname}`}
             className="fixed inset-0 z-[200] flex items-center justify-center bg-pearl"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -167,14 +144,8 @@ export function BrandLoader({ children }: BrandLoaderProps) {
         ) : null}
       </AnimatePresence>
 
-      <div
-        className={
-          contentReady
-            ? "opacity-100 transition-opacity duration-200 ease-out"
-            : "pointer-events-none opacity-0"
-        }
-        aria-hidden={!contentReady}
-      >
+      {/* Keep page mounted under the overlay so every image can fetch. */}
+      <div className={gateReady ? undefined : "pointer-events-none select-none"}>
         {children}
       </div>
     </>

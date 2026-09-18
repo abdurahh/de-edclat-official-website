@@ -4,6 +4,17 @@ Keep this file **small**. Each chat: add a short dated section (bullets only). D
 
 ---
 
+## 2026-09-18 — Brand loading screen
+
+- Full-screen pearl intro: ruby Deeclat icon + thin ruby progress ring
+- Runs on **every route** (home, watch/jewelry collections, detail); skipped on `/admin`
+- Waits until page `<img>` set stabilizes (eager product images) so scroll doesn’t re-fetch
+- Pre-hydration shell in layout + `data-intro`; do not `remove()` shell DOM (breaks React)
+- Web icon: `public/brand/deeclat-icon-primary.svg` (optimized vector)
+- Paths: `components/BrandLoader.tsx` · `lib/preload-assets.ts` · `app/layout.tsx` · `app/globals.css`
+
+---
+
 ## 2026-09-18 — Collection UI + mobile nav icons
 
 - **Home category cards** (`ProductCard`): charcoal Deeclat icon above ruby line (`/brand/deeclat-icon-charcoal.svg` from editable mark)

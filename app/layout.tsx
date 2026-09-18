@@ -37,7 +37,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var p=location.pathname;if(p.indexOf("/admin")===0){document.documentElement.dataset.intro="done";return;}if(sessionStorage.getItem("deeclat-intro-loaded")==="1"){document.documentElement.dataset.intro="done";}else{document.documentElement.dataset.intro="pending";}}catch(e){document.documentElement.dataset.intro="pending";}})();`
+            __html: `(function(){try{var p=location.pathname;if(p.indexOf("/admin")===0){document.documentElement.dataset.intro="done";}else{document.documentElement.dataset.intro="pending";}}catch(e){document.documentElement.dataset.intro="pending";}})();`
           }}
         />
       </head>
