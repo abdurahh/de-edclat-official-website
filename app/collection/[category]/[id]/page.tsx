@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductDetailView } from "@/components/ProductDetailView";
 import { getActiveProductById } from "@/lib/products";
-import type { ProductCategory } from "@/lib/types/product";
+import { CATEGORY_LABELS, type ProductCategory } from "@/lib/types/product";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,12 @@ type ProductPageProps = {
   }>;
 };
 
-const validCategories = new Set<ProductCategory>(["watch", "jewelry"]);
+const validCategories = new Set<ProductCategory>([
+  "watch",
+  "jewelry",
+  "diamond",
+  "gemstone"
+]);
 
 export async function generateMetadata({
   params
@@ -52,12 +57,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <main className="min-h-screen px-5 pt-28 pb-24">
-      <div className="mx-auto max-w-6xl">
+      <div className="relative z-0 mx-auto max-w-6xl">
         <Link
           href={`/collection/${category}`}
-          className="caps-label caps-28 text-xs font-semibold uppercase text-ruby/70 transition hover:text-ruby"
+          className="relative z-10 inline-flex min-h-11 items-center caps-label caps-28 text-xs font-semibold uppercase text-ruby/70 transition hover:text-ruby"
         >
-          ← {category === "watch" ? "Watch" : "Jewelry"}
+          ← {CATEGORY_LABELS[category as ProductCategory]}
         </Link>
         <div className="mt-10">
           <ProductDetailView product={product} />

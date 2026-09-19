@@ -20,6 +20,8 @@ npm-debug.log*
 .vercel
 *.tmp
 *.new
+*.tsbuildinfo
+supabase/.temp/
 
 # local deploy / agent scratch (do not ship)
 .deeclat-deploy-tmp/

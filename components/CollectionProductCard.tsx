@@ -22,14 +22,26 @@ export function CollectionProductCard({ product }: CollectionProductCardProps) {
   const highlight =
     product.category === "watch"
       ? product.details.reference_number || product.details.case_diameter
-      : formatJewelryWeight(product.details) || stones[0]?.name;
+      : product.category === "diamond"
+        ? [product.details.carat, product.details.clarity, product.details.colour]
+            .filter(Boolean)
+            .join(" · ")
+        : product.category === "gemstone"
+          ? [
+              product.gemstone_color_name,
+              product.details.country_of_origin,
+              formatJewelryWeight(product.details)
+            ]
+              .filter(Boolean)
+              .join(" · ")
+          : formatJewelryWeight(product.details) || stones[0]?.name;
 
   return (
     <Link href={href} className="block h-full" aria-label={`${product.brand} ${product.name}`}>
       <motion.article
         whileHover={{ y: -4 }}
         transition={{ type: "spring", stiffness: 200, damping: 24 }}
-        className="group flex h-full flex-col overflow-hidden rounded-lg bg-mist"
+        className="group flex h-full flex-col overflow-hidden rounded-lg bg-mist shadow-none transition-shadow duration-500 hover:shadow-[10px_10px_28px_rgba(179,27,27,0.28)]"
       >
         <div className="relative aspect-[4/5] w-full overflow-hidden bg-champagne">
           <Image

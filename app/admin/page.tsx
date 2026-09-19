@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
-import { getAllProductsForAdmin } from "@/lib/products";
+import {
+  getAllProductsForAdmin,
+  getGemstoneColors,
+  getJewelryTypes
+} from "@/lib/products";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminPage() {
@@ -13,12 +17,18 @@ export default async function AdminPage() {
     redirect("/admin/login");
   }
 
-  const products = await getAllProductsForAdmin();
+  const [products, jewelryTypes, gemstoneColors] = await Promise.all([
+    getAllProductsForAdmin(),
+    getJewelryTypes(),
+    getGemstoneColors()
+  ]);
 
   return (
     <main className="min-h-screen px-5 pt-28 pb-24">
       <AdminDashboard
         initialProducts={products}
+        initialJewelryTypes={jewelryTypes}
+        initialGemstoneColors={gemstoneColors}
         adminEmail={user.email ?? "admin"}
       />
     </main>

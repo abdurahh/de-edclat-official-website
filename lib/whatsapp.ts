@@ -1,3 +1,5 @@
+import { CATEGORY_LABELS, type ProductCategory } from "@/lib/types/product";
+
 const DEFAULT_WHATSAPP = "85261426130";
 
 export function getWhatsAppNumber() {
@@ -15,7 +17,16 @@ export function buildWhatsAppUrl(message: string) {
 export function productInquiryMessage(product: {
   brand: string;
   name: string;
-  category: string;
+  category: ProductCategory | string;
+  serial_number: string;
 }) {
-  return `Hello De Eclat — I'm interested in the ${product.brand} ${product.name} (${product.category}). Could you share availability and next steps?`;
+  const categoryLabel =
+    product.category in CATEGORY_LABELS
+      ? CATEGORY_LABELS[product.category as ProductCategory]
+      : product.category;
+  const serial = product.serial_number?.trim();
+
+  return `Hello De Eclat — I'm interested in the ${product.brand} ${product.name}${
+    serial ? ` (Serial: ${serial})` : ""
+  } from your ${categoryLabel} collection. Could you share availability and next steps?`;
 }

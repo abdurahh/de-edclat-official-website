@@ -4,6 +4,49 @@ Keep this file **small**. Each chat: add a short dated section (bullets only). D
 
 ---
 
+## Versioning (batch numbers)
+
+Format: **`MAJOR.MINOR.PATCH`** (e.g. `01.01.01`) — unreleased / pre-public batches use this scheme.
+
+| Segment | Use for |
+|---------|---------|
+| **Left (MAJOR)** | Super-major updates — multiple new features, design changes, major upgrades |
+| **Middle (MINOR)** | Smaller feature updates and security updates |
+| **Right (PATCH)** | Bug fixes, security patches, tiny UX repairs |
+
+Bump the matching segment for the batch; reset lower segments when a higher one increases (e.g. new minor → `01.02.00`).
+
+**Current batch:** `01.01.01`
+
+---
+
+## 2026-09-19 — Batch `01.01.01` (unreleased)
+
+Admin inventory + diamonds/gemstones + serials + exports (this chat).
+
+- **Jewelry types:** reusable catalog dropdown (unique names); drives jewelry serial prefixes
+- **Serial numbers:** `PREFIX + YY + ####` (HKT year); watch=`W`, diamond=`D`, jewelry=type letter(s), gemstone=first two letters of colour; delete reuses gaps; deactivate keeps number; preview in admin
+- **Diamonds & gemstones:** categories + collection pages; **not** on homepage cards; nav links Watch / Jewelry / Diamond / Gemstone
+- **Gemstone colours:** catalog + country of origin; delete type/colour from admin
+- **Confidential (admin only):** cost, source name, source link via `product_confidential` (RLS admin-only; never on public site)
+- **Excel:** Export inventory · Export company (`con-…xlsx` = general + cost/source columns); both include serial
+- **Contact subjects:** Watches / Jewelry / Diamonds and Gemstones / Others (free text)
+- **UX:** description below WhatsApp; inquiry includes serial; mobile back-link fix (header menu no longer blocks taps); mobile nav drops Home link
+- **Migrations:** `jewelry_types` · serials · diamond/gemstone · `gemstone_colors` · `product_confidential`
+- Paths: `AdminDashboard.tsx` · `lib/exportInventory.ts` · `lib/products.ts` · `lib/types/product.ts` · `lib/whatsapp.ts` · `SiteHeader.tsx` · `ContactForm.tsx` · `ProductDetailView.tsx` · `supabase/migrations/`
+
+---
+
+## 2026-09-19 — Mobile hamburger nav + card hover shadow
+
+- **Mobile nav ≤455px:** hamburger (left) expands collection + Contact; logo centered (nudged `left-[44%]` for visual balance vs socials); socials right
+- **Desktop ≥456px:** logo left, collection links center, socials right
+- Replaces prior mobile Watch/Jewelry icon links
+- **Collection cards hover:** ruby shadow offset right+bottom (`10px 10px 28px rgba(179,27,27,0.28)`)
+- Paths: `SiteHeader.tsx` · `CollectionProductCard.tsx`
+
+---
+
 ## 2026-09-18 — Brand loading screen
 
 - Full-screen pearl intro: ruby Deeclat icon + thin ruby progress ring
@@ -22,8 +65,8 @@ Keep this file **small**. Each chat: add a short dated section (bullets only). D
 - **Collection product cards:** full mist panel + light `rounded-lg`; image `aspect-[4/5]`; tighter mobile type/padding
 - **Collection grid:** `grid-cols-2` mobile → `lg:grid-cols-3` (peek next row on ~640×915); was filling viewport at 1-col
 - **Header nav text:** charcoal semibold + ruby hover
-- **Mobile nav ≤455px** (`screens.nav: 456px`): centered icon-only Watch / Jewelry; ≥456px text labels
-- **Icons:** `/icons/watch.png` · `/icons/jewelry-ring.png` via CSS mask; size ~20px; default **ruby**, hover **charcoal**
+- **Mobile nav ≤455px** (`screens.nav: 456px`): ~~centered icon-only Watch / Jewelry~~ → superseded 2026-09-19 by hamburger menu
+- **Icons (legacy assets):** `/icons/watch.png` · `/icons/jewelry-ring.png` still in `public/icons/`
 - Paths: `ProductCard.tsx` · `CollectionProductCard.tsx` · `app/collection/[category]/page.tsx` · `SiteHeader.tsx` · `tailwind.config.js` · `public/brand/` · `public/icons/`
 
 ---

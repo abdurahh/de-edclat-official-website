@@ -1,4 +1,4 @@
-export type ProductCategory = "watch" | "jewelry";
+export type ProductCategory = "watch" | "jewelry" | "diamond" | "gemstone";
 
 export type StockStatus = "available" | "reserved" | "sold";
 
@@ -35,7 +35,46 @@ export type JewelryDetails = {
   hallmark?: string;
 };
 
-export type ProductDetails = WatchDetails & JewelryDetails;
+export type DiamondDetails = {
+  carat?: string;
+  cut?: string;
+  clarity?: string;
+  colour?: string;
+  certification?: string;
+  shape?: string;
+};
+
+export type GemstoneDetails = {
+  /** Country / region of origin. */
+  country_of_origin?: string;
+  weight?: string;
+  size_dimensions?: string;
+  certification?: string;
+};
+
+export type ProductDetails = WatchDetails &
+  JewelryDetails &
+  DiamondDetails &
+  GemstoneDetails;
+
+/** Catalog subtype for jewelry (Ring, Necklace, …). Unique by name. */
+export type JewelryType = {
+  id: string;
+  name: string;
+  /** Letter code used in serials (R, NE, …). Watches always use W. */
+  serial_prefix: string;
+  created_at: string;
+  updated_at: string;
+};
+
+/** Gemstone colour catalog. Serial prefix = first two letters of the colour. */
+export type GemstoneColor = {
+  id: string;
+  name: string;
+  serial_prefix: string;
+  created_at: string;
+  updated_at: string;
+};
 
 export type Product = {
   id: string;
@@ -50,9 +89,51 @@ export type Product = {
   images: string[];
   is_active: boolean;
   details: ProductDetails;
+  /** Set when category is jewelry; null otherwise. */
+  jewelry_type_id: string | null;
+  /** Joined name when loaded with jewelry_types relation. */
+  jewelry_type_name?: string | null;
+  /** Set when category is gemstone; null otherwise. */
+  gemstone_color_id: string | null;
+  /** Joined colour name when loaded with gemstone_colors relation. */
+  gemstone_color_name?: string | null;
+  /** Auto serial e.g. R260001 / W260001 / D260001 / BL260001. */
+  serial_number: string;
+  /** Admin-only. Never shown on the public site. */
+  cost?: number | null;
+  /** Admin-only source / supplier name. */
+  source_name?: string | null;
+  /** Admin-only source URL. */
+  source_link?: string | null;
   created_at: string;
   updated_at: string;
 };
+
+export const WATCH_SERIAL_PREFIX = "W";
+export const DIAMOND_SERIAL_PREFIX = "D";
+
+export const CATEGORY_LABELS: Record<ProductCategory, string> = {
+  watch: "Watch",
+  jewelry: "Jewelry",
+  diamond: "Diamonds",
+  gemstone: "Gemstones"
+};
+
+export function resolveSerialPrefix(
+  category: ProductCategory,
+  jewelryType?: Pick<JewelryType, "serial_prefix"> | null,
+  gemstoneColor?: Pick<GemstoneColor, "serial_prefix"> | null
+): string | null {
+  if (category === "watch") return WATCH_SERIAL_PREFIX;
+  if (category === "diamond") return DIAMOND_SERIAL_PREFIX;
+  if (category === "jewelry") {
+    return jewelryType?.serial_prefix?.toUpperCase() ?? null;
+  }
+  if (category === "gemstone") {
+    return gemstoneColor?.serial_prefix?.toUpperCase() ?? null;
+  }
+  return null;
+}
 
 export const WATCH_DETAIL_FIELDS = [
   { key: "reference_number", label: "Reference" },
@@ -74,6 +155,28 @@ export const JEWELRY_DETAIL_FIELDS = [
   { key: "hallmark", label: "Hallmark" }
 ] as const satisfies ReadonlyArray<{
   key: keyof JewelryDetails;
+  label: string;
+}>;
+
+export const DIAMOND_DETAIL_FIELDS = [
+  { key: "carat", label: "Carat" },
+  { key: "cut", label: "Cut" },
+  { key: "clarity", label: "Clarity" },
+  { key: "colour", label: "Colour" },
+  { key: "shape", label: "Shape" },
+  { key: "certification", label: "Certification" }
+] as const satisfies ReadonlyArray<{
+  key: keyof DiamondDetails;
+  label: string;
+}>;
+
+export const GEMSTONE_DETAIL_FIELDS = [
+  { key: "country_of_origin", label: "Country of origin" },
+  { key: "weight", label: "Weight" },
+  { key: "size_dimensions", label: "Size / dimensions" },
+  { key: "certification", label: "Certification" }
+] as const satisfies ReadonlyArray<{
+  key: keyof GemstoneDetails;
   label: string;
 }>;
 
@@ -123,5 +226,18 @@ export function stockLabel(status: StockStatus) {
       return "Reserved";
     case "sold":
       return "Sold";
+  }
+}
+
+export function detailFieldsForCategory(category: ProductCategory) {
+  switch (category) {
+    case "watch":
+      return WATCH_DETAIL_FIELDS;
+    case "jewelry":
+      return JEWELRY_DETAIL_FIELDS;
+    case "diamond":
+      return DIAMOND_DETAIL_FIELDS;
+    case "gemstone":
+      return GEMSTONE_DETAIL_FIELDS;
   }
 }

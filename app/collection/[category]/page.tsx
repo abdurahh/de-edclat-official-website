@@ -21,6 +21,18 @@ const collections = {
     eyebrow: "Timepiece Collection",
     description:
       "Curated timepieces with measured detail. No checkout — reach us directly for each piece."
+  },
+  diamond: {
+    title: "Diamonds",
+    eyebrow: "Diamond Collection",
+    description:
+      "Exceptional diamonds presented with clarity — inquire privately for certificates and viewing."
+  },
+  gemstone: {
+    title: "Gemstones",
+    eyebrow: "Gemstone Collection",
+    description:
+      "Coloured gemstones chosen for origin and character — reach us directly for each stone."
   }
 } as const;
 

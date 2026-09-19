@@ -1,18 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { downloadCompanyInventoryExcel, downloadInventoryExcel } from "@/lib/exportInventory";
 import {
-  JEWELRY_DETAIL_FIELDS,
-  WATCH_DETAIL_FIELDS,
+  CATEGORY_LABELS,
+  DIAMOND_SERIAL_PREFIX,
+  WATCH_SERIAL_PREFIX,
+  detailFieldsForCategory,
   emptyJewelryStone,
   formatJewelryWeight,
   formatPrice,
   getJewelryStones,
+  resolveSerialPrefix,
   stockLabel,
+  type GemstoneColor,
   type JewelryStone,
+  type JewelryType,
   type Product,
   type ProductCategory,
   type ProductDetails,
@@ -21,6 +27,8 @@ import {
 
 type AdminDashboardProps = {
   initialProducts: Product[];
+  initialJewelryTypes: JewelryType[];
+  initialGemstoneColors: GemstoneColor[];
   adminEmail: string;
 };
 
@@ -33,8 +41,13 @@ type FormState = {
   condition: string;
   stock_status: StockStatus;
   is_active: boolean;
+  jewelry_type_id: string;
+  gemstone_color_id: string;
   details: ProductDetails;
   images: string[];
+  cost: string;
+  source_name: string;
+  source_link: string;
 };
 
 const emptyForm = (): FormState => ({
@@ -46,8 +59,13 @@ const emptyForm = (): FormState => ({
   condition: "",
   stock_status: "available",
   is_active: true,
+  jewelry_type_id: "",
+  gemstone_color_id: "",
   details: {},
-  images: []
+  images: [],
+  cost: "",
+  source_name: "",
+  source_link: ""
 });
 
 function productToForm(product: Product): FormState {
@@ -70,9 +88,29 @@ function productToForm(product: Product): FormState {
     condition: product.condition ?? "",
     stock_status: product.stock_status,
     is_active: product.is_active,
+    jewelry_type_id: product.jewelry_type_id ?? "",
+    gemstone_color_id: product.gemstone_color_id ?? "",
     details,
-    images: product.images ?? []
+    images: product.images ?? [],
+    cost:
+      product.cost === null || product.cost === undefined
+        ? ""
+        : String(product.cost),
+    source_name: product.source_name ?? "",
+    source_link: product.source_link ?? ""
   };
+}
+
+function normalizeCatalogName(name: string) {
+  return name.trim().replace(/\s+/g, " ");
+}
+
+function isDuplicateCatalogError(message: string) {
+  return (
+    message.includes("jewelry_types_name_unique_idx") ||
+    message.includes("gemstone_colors_name_unique_idx") ||
+    message.toLowerCase().includes("duplicate")
+  );
 }
 
 function sanitizeDetails(details: ProductDetails): ProductDetails {
@@ -114,26 +152,349 @@ function jewelryStonesFromForm(details: ProductDetails): JewelryStone[] {
 
 export function AdminDashboard({
   initialProducts,
+  initialJewelryTypes,
+  initialGemstoneColors,
   adminEmail
 }: AdminDashboardProps) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
+  const [jewelryTypes, setJewelryTypes] = useState(initialJewelryTypes);
+  const [gemstoneColors, setGemstoneColors] = useState(initialGemstoneColors);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [addingType, setAddingType] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [savingType, setSavingType] = useState(false);
+  const [addingColor, setAddingColor] = useState(false);
+  const [newColorName, setNewColorName] = useState("");
+  const [savingColor, setSavingColor] = useState(false);
+  const [deletingType, setDeletingType] = useState(false);
+  const [deletingColor, setDeletingColor] = useState(false);
+  const [serialPreview, setSerialPreview] = useState<string | null>(null);
+  const [serialPreviewLoading, setSerialPreviewLoading] = useState(false);
 
   const detailFields = useMemo(
-    () =>
-      form.category === "watch" ? WATCH_DETAIL_FIELDS : JEWELRY_DETAIL_FIELDS,
+    () => detailFieldsForCategory(form.category),
     [form.category]
   );
+
+  const selectedJewelryType = useMemo(
+    () => jewelryTypes.find((type) => type.id === form.jewelry_type_id) ?? null,
+    [jewelryTypes, form.jewelry_type_id]
+  );
+
+  const selectedGemstoneColor = useMemo(
+    () =>
+      gemstoneColors.find((color) => color.id === form.gemstone_color_id) ??
+      null,
+    [gemstoneColors, form.gemstone_color_id]
+  );
+
+  const editingProduct = useMemo(
+    () => products.find((product) => product.id === editingId) ?? null,
+    [products, editingId]
+  );
+
+  const serialPrefix = useMemo(
+    () =>
+      resolveSerialPrefix(
+        form.category,
+        selectedJewelryType,
+        selectedGemstoneColor
+      ),
+    [form.category, selectedJewelryType, selectedGemstoneColor]
+  );
+
+  useEffect(() => {
+    if (editingId) {
+      setSerialPreview(editingProduct?.serial_number ?? null);
+      setSerialPreviewLoading(false);
+      return;
+    }
+
+    if (!serialPrefix) {
+      setSerialPreview(null);
+      setSerialPreviewLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const supabase = createClient();
+
+    setSerialPreviewLoading(true);
+    void supabase
+      .rpc("preview_next_product_serial", { p_prefix: serialPrefix })
+      .then(({ data, error: previewError }) => {
+        if (cancelled) return;
+        if (previewError) {
+          setSerialPreview(null);
+          setSerialPreviewLoading(false);
+          return;
+        }
+        setSerialPreview(typeof data === "string" ? data : null);
+        setSerialPreviewLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [editingId, editingProduct?.serial_number, serialPrefix, products]);
 
   function resetForm() {
     setForm(emptyForm());
     setEditingId(null);
+    setAddingType(false);
+    setNewTypeName("");
+    setAddingColor(false);
+    setNewColorName("");
+  }
+
+  async function addJewelryType() {
+    const name = normalizeCatalogName(newTypeName);
+    if (!name) {
+      setError("Enter a jewelry type name.");
+      return;
+    }
+
+    const duplicate = jewelryTypes.some(
+      (type) => type.name.toLowerCase() === name.toLowerCase()
+    );
+    if (duplicate) {
+      setError(`“${name}” already exists. Choose it from the dropdown.`);
+      return;
+    }
+
+    setSavingType(true);
+    setError(null);
+    setStatus(null);
+    const supabase = createClient();
+
+    try {
+      const { data, error: insertError } = await supabase
+        .from("jewelry_types")
+        .insert({ name })
+        .select("*")
+        .single();
+      if (insertError) throw insertError;
+
+      const created: JewelryType = {
+        id: data.id,
+        name: data.name,
+        serial_prefix: data.serial_prefix,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+
+      setJewelryTypes((current) =>
+        [...current, created].sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+        )
+      );
+      setForm((current) => ({ ...current, jewelry_type_id: created.id }));
+      setAddingType(false);
+      setNewTypeName("");
+      setStatus(
+        `Jewelry type “${created.name}” added (serial prefix ${created.serial_prefix}).`
+      );
+    } catch (typeErr) {
+      const message =
+        typeErr instanceof Error ? typeErr.message : "Could not add type.";
+      setError(
+        isDuplicateCatalogError(message)
+          ? `“${name}” already exists. Choose it from the dropdown.`
+          : message
+      );
+    } finally {
+      setSavingType(false);
+    }
+  }
+
+  async function addGemstoneColor() {
+    const name = normalizeCatalogName(newColorName);
+    if (!name) {
+      setError("Enter a gemstone colour name.");
+      return;
+    }
+    if (name.replace(/[^a-zA-Z]/g, "").length < 2) {
+      setError("Colour name needs at least two letters for the serial prefix.");
+      return;
+    }
+
+    const duplicate = gemstoneColors.some(
+      (color) => color.name.toLowerCase() === name.toLowerCase()
+    );
+    if (duplicate) {
+      setError(`“${name}” already exists. Choose it from the dropdown.`);
+      return;
+    }
+
+    setSavingColor(true);
+    setError(null);
+    setStatus(null);
+    const supabase = createClient();
+
+    try {
+      const { data, error: insertError } = await supabase
+        .from("gemstone_colors")
+        .insert({ name })
+        .select("*")
+        .single();
+      if (insertError) throw insertError;
+
+      const created: GemstoneColor = {
+        id: data.id,
+        name: data.name,
+        serial_prefix: data.serial_prefix,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      };
+
+      setGemstoneColors((current) =>
+        [...current, created].sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { sensitivity: "base" })
+        )
+      );
+      setForm((current) => ({ ...current, gemstone_color_id: created.id }));
+      setAddingColor(false);
+      setNewColorName("");
+      setStatus(
+        `Gemstone colour “${created.name}” added (serial prefix ${created.serial_prefix}).`
+      );
+    } catch (colorErr) {
+      const message =
+        colorErr instanceof Error ? colorErr.message : "Could not add colour.";
+      setError(
+        isDuplicateCatalogError(message)
+          ? `“${name}” already exists. Choose it from the dropdown.`
+          : message
+      );
+    } finally {
+      setSavingColor(false);
+    }
+  }
+
+  async function deleteJewelryType() {
+    if (!form.jewelry_type_id) {
+      setError("Select a jewelry type to delete.");
+      return;
+    }
+
+    const type = jewelryTypes.find((item) => item.id === form.jewelry_type_id);
+    if (!type) return;
+
+    const inUse = products.filter(
+      (product) => product.jewelry_type_id === type.id
+    ).length;
+    const warning =
+      inUse > 0
+        ? `Delete jewelry type “${type.name}”? It is used by ${inUse} product${inUse === 1 ? "" : "s"}. Those products will keep their serial numbers but lose this type.`
+        : `Delete jewelry type “${type.name}”?`;
+
+    if (!window.confirm(warning)) return;
+
+    setDeletingType(true);
+    setError(null);
+    setStatus(null);
+    const supabase = createClient();
+
+    try {
+      const { error: deleteError } = await supabase
+        .from("jewelry_types")
+        .delete()
+        .eq("id", type.id);
+      if (deleteError) throw deleteError;
+
+      setJewelryTypes((current) =>
+        current.filter((item) => item.id !== type.id)
+      );
+      setProducts((current) =>
+        current.map((product) =>
+          product.jewelry_type_id === type.id
+            ? {
+                ...product,
+                jewelry_type_id: null,
+                jewelry_type_name: null
+              }
+            : product
+        )
+      );
+      setForm((current) => ({ ...current, jewelry_type_id: "" }));
+      setStatus(`Jewelry type “${type.name}” deleted.`);
+      router.refresh();
+    } catch (deleteErr) {
+      setError(
+        deleteErr instanceof Error
+          ? deleteErr.message
+          : "Could not delete jewelry type."
+      );
+    } finally {
+      setDeletingType(false);
+    }
+  }
+
+  async function deleteGemstoneColor() {
+    if (!form.gemstone_color_id) {
+      setError("Select a gemstone colour to delete.");
+      return;
+    }
+
+    const color = gemstoneColors.find(
+      (item) => item.id === form.gemstone_color_id
+    );
+    if (!color) return;
+
+    const inUse = products.filter(
+      (product) => product.gemstone_color_id === color.id
+    ).length;
+    const warning =
+      inUse > 0
+        ? `Delete colour “${color.name}”? It is used by ${inUse} product${inUse === 1 ? "" : "s"}. Those products will keep their serial numbers but lose this colour.`
+        : `Delete colour “${color.name}”?`;
+
+    if (!window.confirm(warning)) return;
+
+    setDeletingColor(true);
+    setError(null);
+    setStatus(null);
+    const supabase = createClient();
+
+    try {
+      const { error: deleteError } = await supabase
+        .from("gemstone_colors")
+        .delete()
+        .eq("id", color.id);
+      if (deleteError) throw deleteError;
+
+      setGemstoneColors((current) =>
+        current.filter((item) => item.id !== color.id)
+      );
+      setProducts((current) =>
+        current.map((product) =>
+          product.gemstone_color_id === color.id
+            ? {
+                ...product,
+                gemstone_color_id: null,
+                gemstone_color_name: null
+              }
+            : product
+        )
+      );
+      setForm((current) => ({ ...current, gemstone_color_id: "" }));
+      setStatus(`Gemstone colour “${color.name}” deleted.`);
+      router.refresh();
+    } catch (deleteErr) {
+      setError(
+        deleteErr instanceof Error
+          ? deleteErr.message
+          : "Could not delete gemstone colour."
+      );
+    } finally {
+      setDeletingColor(false);
+    }
   }
 
   function startEdit(product: Product) {
@@ -209,6 +570,39 @@ export function AdminDashboard({
       setSaving(false);
       return;
     }
+    if (form.category === "jewelry" && !form.jewelry_type_id) {
+      setError("Select a jewelry type, or add a new one.");
+      setSaving(false);
+      return;
+    }
+    if (form.category === "gemstone" && !form.gemstone_color_id) {
+      setError("Select a gemstone colour, or add a new one.");
+      setSaving(false);
+      return;
+    }
+
+    const costRaw = form.cost.trim();
+    const cost = costRaw === "" ? null : Number(costRaw);
+    if (costRaw !== "" && (!Number.isFinite(cost) || (cost as number) < 0)) {
+      setError("Enter a valid cost, or leave it blank.");
+      setSaving(false);
+      return;
+    }
+
+    const jewelryTypeId =
+      form.category === "jewelry" ? form.jewelry_type_id : null;
+    const jewelryTypeName = jewelryTypeId
+      ? (jewelryTypes.find((type) => type.id === jewelryTypeId)?.name ?? null)
+      : null;
+    const gemstoneColorId =
+      form.category === "gemstone" ? form.gemstone_color_id : null;
+    const gemstoneColorName = gemstoneColorId
+      ? (gemstoneColors.find((color) => color.id === gemstoneColorId)?.name ??
+        null)
+      : null;
+
+    const sourceName = form.source_name.trim() || null;
+    const sourceLink = form.source_link.trim() || null;
 
     const payload = {
       category: form.category,
@@ -221,10 +615,38 @@ export function AdminDashboard({
       stock_status: form.stock_status,
       is_active: form.is_active,
       images: form.images,
+      jewelry_type_id: jewelryTypeId,
+      gemstone_color_id: gemstoneColorId,
       details: sanitizeDetails(form.details)
     };
 
     const supabase = createClient();
+
+    async function saveConfidential(productId: string) {
+      const hasConfidential =
+        cost !== null || sourceName !== null || sourceLink !== null;
+
+      if (!hasConfidential) {
+        await supabase
+          .from("product_confidential")
+          .delete()
+          .eq("product_id", productId);
+        return;
+      }
+
+      const { error: confidentialError } = await supabase
+        .from("product_confidential")
+        .upsert(
+          {
+            product_id: productId,
+            cost,
+            source_name: sourceName,
+            source_link: sourceLink
+          },
+          { onConflict: "product_id" }
+        );
+      if (confidentialError) throw confidentialError;
+    }
 
     try {
       if (editingId) {
@@ -235,6 +657,7 @@ export function AdminDashboard({
           .select("*")
           .single();
         if (updateError) throw updateError;
+        await saveConfidential(editingId);
         setProducts((current) =>
           current.map((item) =>
             item.id === editingId
@@ -245,6 +668,14 @@ export function AdminDashboard({
                   description: payload.description,
                   condition: payload.condition,
                   details: payload.details,
+                  jewelry_type_id: jewelryTypeId,
+                  jewelry_type_name: jewelryTypeName,
+                  gemstone_color_id: gemstoneColorId,
+                  gemstone_color_name: gemstoneColorName,
+                  serial_number: data.serial_number ?? item.serial_number,
+                  cost,
+                  source_name: sourceName,
+                  source_link: sourceLink,
                   updated_at: data.updated_at
                 }
               : item
@@ -258,6 +689,7 @@ export function AdminDashboard({
           .select("*")
           .single();
         if (insertError) throw insertError;
+        await saveConfidential(data.id);
         setProducts((current) => [
           {
             id: data.id,
@@ -272,12 +704,20 @@ export function AdminDashboard({
             images: data.images ?? [],
             is_active: data.is_active,
             details: data.details ?? {},
+            jewelry_type_id: data.jewelry_type_id ?? jewelryTypeId,
+            jewelry_type_name: jewelryTypeName,
+            gemstone_color_id: data.gemstone_color_id ?? gemstoneColorId,
+            gemstone_color_name: gemstoneColorName,
+            serial_number: data.serial_number,
+            cost,
+            source_name: sourceName,
+            source_link: sourceLink,
             created_at: data.created_at,
             updated_at: data.updated_at
           },
           ...current
         ]);
-        setStatus("Product added.");
+        setStatus(`Product added · ${data.serial_number}`);
       }
       resetForm();
       router.refresh();
@@ -333,6 +773,29 @@ export function AdminDashboard({
     router.refresh();
   }
 
+  function exportInventory(kind: "general" | "company") {
+    if (products.length === 0) {
+      setError("No products to export.");
+      return;
+    }
+    try {
+      if (kind === "company") {
+        downloadCompanyInventoryExcel(products);
+        setStatus(`Exported company inventory (${products.length} products).`);
+      } else {
+        downloadInventoryExcel(products);
+        setStatus(`Exported inventory (${products.length} products).`);
+      }
+      setError(null);
+    } catch (exportErr) {
+      setError(
+        exportErr instanceof Error
+          ? exportErr.message
+          : "Could not export inventory."
+      );
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-12">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -373,6 +836,46 @@ export function AdminDashboard({
           ) : null}
         </div>
 
+        <div className="mt-6 rounded-2xl border border-ruby/15 bg-pearl/50 px-4 py-3 sm:px-5">
+          <p className="caps-label caps-28 text-xs uppercase text-slate">
+            Serial number
+          </p>
+          <p className="mt-1 font-display text-2xl tracking-wide text-charcoal">
+            {editingId
+              ? (editingProduct?.serial_number ?? "—")
+              : serialPreviewLoading
+                ? "Assigning…"
+                : serialPrefix
+                  ? (serialPreview ?? "—")
+                  : form.category === "jewelry"
+                    ? "Select a jewelry type"
+                    : form.category === "gemstone"
+                      ? "Select a gemstone colour"
+                      : "—"}
+          </p>
+          <p className="mt-1 text-xs text-slate">
+            {editingId
+              ? "Serial stays with this product until it is permanently deleted."
+              : serialPrefix
+                ? `Prefix ${serialPrefix}${
+                    serialPrefix === WATCH_SERIAL_PREFIX
+                      ? " (watches)"
+                      : serialPrefix === DIAMOND_SERIAL_PREFIX
+                        ? " (diamonds)"
+                        : selectedJewelryType
+                          ? ` · ${selectedJewelryType.name}`
+                          : selectedGemstoneColor
+                            ? ` · ${selectedGemstoneColor.name}`
+                            : ""
+                  }. Deactivated items keep their number; deleted items free it for reuse.`
+                : form.category === "jewelry"
+                  ? "Choose jewelry type to preview the next serial."
+                  : form.category === "gemstone"
+                    ? "Choose gemstone colour to preview the next serial."
+                    : "—"}
+          </p>
+        </div>
+
         <div className="mt-8 grid gap-5 sm:grid-cols-2">
           <label className="block">
             <span className="caps-label caps-28 text-xs uppercase text-slate">
@@ -382,9 +885,17 @@ export function AdminDashboard({
               value={form.category}
               onChange={(event) => {
                 const category = event.target.value as ProductCategory;
+                setAddingType(false);
+                setNewTypeName("");
+                setAddingColor(false);
+                setNewColorName("");
                 setForm((current) => ({
                   ...current,
                   category,
+                  jewelry_type_id:
+                    category === "jewelry" ? current.jewelry_type_id : "",
+                  gemstone_color_id:
+                    category === "gemstone" ? current.gemstone_color_id : "",
                   details:
                     category === "jewelry"
                       ? { stones: [emptyJewelryStone()] }
@@ -395,6 +906,8 @@ export function AdminDashboard({
             >
               <option value="watch">Watch</option>
               <option value="jewelry">Jewelry</option>
+              <option value="diamond">Diamonds</option>
+              <option value="gemstone">Gemstones</option>
             </select>
           </label>
 
@@ -498,8 +1011,231 @@ export function AdminDashboard({
 
         <div className="mt-8">
           <p className="caps-label caps-28 text-xs uppercase text-slate">
-            {form.category === "watch" ? "Watch details" : "Jewelry details"}
+            {CATEGORY_LABELS[form.category]} details
           </p>
+
+          {form.category === "jewelry" ? (
+            <div className="mt-4 rounded-2xl border border-ruby/10 bg-pearl/40 p-4 sm:p-5">
+              <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                    Jewelry type
+                  </span>
+                  <select
+                    required
+                    value={form.jewelry_type_id}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (value === "__add_new__") {
+                        setAddingType(true);
+                        setForm((current) => ({
+                          ...current,
+                          jewelry_type_id: ""
+                        }));
+                        return;
+                      }
+                      setAddingType(false);
+                      setNewTypeName("");
+                      setForm((current) => ({
+                        ...current,
+                        jewelry_type_id: value
+                      }));
+                    }}
+                    className="form-field mt-2 rounded-2xl"
+                  >
+                    <option value="">Select type…</option>
+                    {jewelryTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name} ({type.serial_prefix})
+                      </option>
+                    ))}
+                    <option value="__add_new__">+ Add new type…</option>
+                  </select>
+                </label>
+                {!addingType && jewelryTypes.length > 0 ? (
+                  <div className="flex items-center gap-4 sm:mb-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddingType(true);
+                        setForm((current) => ({
+                          ...current,
+                          jewelry_type_id: ""
+                        }));
+                      }}
+                      className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-ruby transition hover:text-charcoal"
+                    >
+                      Add type
+                    </button>
+                    {form.jewelry_type_id ? (
+                      <button
+                        type="button"
+                        disabled={deletingType}
+                        onClick={() => void deleteJewelryType()}
+                        className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-ruby/70 transition hover:text-ruby disabled:opacity-60"
+                      >
+                        {deletingType ? "Deleting…" : "Delete type"}
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+
+              {addingType ? (
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <label className="block flex-1">
+                    <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                      New type name
+                    </span>
+                    <input
+                      value={newTypeName}
+                      onChange={(event) => setNewTypeName(event.target.value)}
+                      placeholder="e.g. Ring, Necklace, Bracelet"
+                      className="form-field mt-2 rounded-2xl"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          void addJewelryType();
+                        }
+                      }}
+                    />
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={savingType}
+                      onClick={() => void addJewelryType()}
+                      className="rounded-full bg-ruby px-5 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-pearl disabled:opacity-60"
+                    >
+                      {savingType ? "Saving…" : "Save type"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddingType(false);
+                        setNewTypeName("");
+                      }}
+                      className="rounded-full border border-ruby/20 px-5 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {form.category === "gemstone" ? (
+            <div className="mt-4 rounded-2xl border border-ruby/10 bg-pearl/40 p-4 sm:p-5">
+              <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+                <label className="block">
+                  <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                    Colour
+                  </span>
+                  <select
+                    required
+                    value={form.gemstone_color_id}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (value === "__add_new__") {
+                        setAddingColor(true);
+                        setForm((current) => ({
+                          ...current,
+                          gemstone_color_id: ""
+                        }));
+                        return;
+                      }
+                      setAddingColor(false);
+                      setNewColorName("");
+                      setForm((current) => ({
+                        ...current,
+                        gemstone_color_id: value
+                      }));
+                    }}
+                    className="form-field mt-2 rounded-2xl"
+                  >
+                    <option value="">Select colour…</option>
+                    {gemstoneColors.map((color) => (
+                      <option key={color.id} value={color.id}>
+                        {color.name} ({color.serial_prefix})
+                      </option>
+                    ))}
+                    <option value="__add_new__">+ Add new colour…</option>
+                  </select>
+                </label>
+                {!addingColor && gemstoneColors.length > 0 ? (
+                  <div className="flex items-center gap-4 sm:mb-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddingColor(true);
+                        setForm((current) => ({
+                          ...current,
+                          gemstone_color_id: ""
+                        }));
+                      }}
+                      className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-ruby transition hover:text-charcoal"
+                    >
+                      Add colour
+                    </button>
+                    {form.gemstone_color_id ? (
+                      <button
+                        type="button"
+                        disabled={deletingColor}
+                        onClick={() => void deleteGemstoneColor()}
+                        className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-ruby/70 transition hover:text-ruby disabled:opacity-60"
+                      >
+                        {deletingColor ? "Deleting…" : "Delete colour"}
+                      </button>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+
+              {addingColor ? (
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <label className="block flex-1">
+                    <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                      New colour name
+                    </span>
+                    <input
+                      value={newColorName}
+                      onChange={(event) => setNewColorName(event.target.value)}
+                      placeholder="e.g. Blue, Pink, Green"
+                      className="form-field mt-2 rounded-2xl"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          void addGemstoneColor();
+                        }
+                      }}
+                    />
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={savingColor}
+                      onClick={() => void addGemstoneColor()}
+                      className="rounded-full bg-ruby px-5 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-pearl disabled:opacity-60"
+                    >
+                      {savingColor ? "Saving…" : "Save colour"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAddingColor(false);
+                        setNewColorName("");
+                      }}
+                      className="rounded-full border border-ruby/20 px-5 py-3 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="mt-4 grid gap-5 sm:grid-cols-2">
             {detailFields.map((field) => (
               <label key={field.key} className="block">
@@ -726,6 +1462,68 @@ export function AdminDashboard({
           Active on public collection pages
         </label>
 
+        <div className="mt-8 rounded-2xl border border-dashed border-ruby/25 bg-charcoal/[0.03] p-4 sm:p-5">
+          <p className="caps-label caps-28 text-xs uppercase text-ruby">
+            Confidential · company use only
+          </p>
+          <p className="mt-2 text-xs leading-6 text-slate">
+            These fields are never shown on the public website. They appear only
+            in the company Excel export.
+          </p>
+          <div className="mt-5 grid gap-5 sm:grid-cols-3">
+            <label className="block">
+              <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                Cost
+              </span>
+              <input
+                inputMode="decimal"
+                value={form.cost}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    cost: event.target.value
+                  }))
+                }
+                placeholder="Internal cost"
+                className="form-field mt-2 rounded-2xl"
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                Source name
+              </span>
+              <input
+                value={form.source_name}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    source_name: event.target.value
+                  }))
+                }
+                placeholder="Supplier / source"
+                className="form-field mt-2 rounded-2xl"
+              />
+            </label>
+            <label className="block sm:col-span-1">
+              <span className="text-xs uppercase tracking-[0.18em] text-slate">
+                Source link
+              </span>
+              <input
+                type="url"
+                value={form.source_link}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    source_link: event.target.value
+                  }))
+                }
+                placeholder="https://…"
+                className="form-field mt-2 rounded-2xl"
+              />
+            </label>
+          </div>
+        </div>
+
         {error ? <p className="mt-4 text-sm text-ruby">{error}</p> : null}
         {status ? <p className="mt-4 text-sm text-slate">{status}</p> : null}
 
@@ -739,7 +1537,29 @@ export function AdminDashboard({
       </form>
 
       <section>
-        <h2 className="font-display text-3xl text-charcoal">Existing products</h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <h2 className="font-display text-3xl text-charcoal">
+            Existing products
+          </h2>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <button
+              type="button"
+              onClick={() => exportInventory("general")}
+              disabled={products.length === 0}
+              className="inline-flex items-center justify-center rounded-full border border-ruby/20 px-6 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-ruby transition hover:bg-ruby hover:text-pearl disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Export inventory
+            </button>
+            <button
+              type="button"
+              onClick={() => exportInventory("company")}
+              disabled={products.length === 0}
+              className="inline-flex items-center justify-center rounded-full bg-ruby px-6 py-3 text-xs font-semibold uppercase tracking-[0.22em] text-pearl transition hover:bg-charcoal disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Export company (con)
+            </button>
+          </div>
+        </div>
         {products.length === 0 ? (
           <p className="mt-6 text-slate">No products yet.</p>
         ) : (
@@ -762,7 +1582,15 @@ export function AdminDashboard({
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-[0.22em] text-ruby/70">
-                    {product.category} · {stockLabel(product.stock_status)}
+                    {product.serial_number} · {CATEGORY_LABELS[product.category]}
+                    {product.category === "jewelry" && product.jewelry_type_name
+                      ? ` · ${product.jewelry_type_name}`
+                      : ""}
+                    {product.category === "gemstone" &&
+                    product.gemstone_color_name
+                      ? ` · ${product.gemstone_color_name}`
+                      : ""}{" "}
+                    · {stockLabel(product.stock_status)}
                     {!product.is_active ? " · inactive" : ""}
                   </p>
                   <p className="mt-1 font-display text-xl text-charcoal">

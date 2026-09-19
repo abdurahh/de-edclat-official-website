@@ -81,7 +81,7 @@ export function NavSocialLinks() {
   return (
     <div className="flex items-center gap-1 sm:gap-2">
       <a
-        href="https://instagram.com"
+        href="https://www.instagram.com/deeclat.hk"
         target="_blank"
         rel="noopener noreferrer"
         className={iconButtonClass}

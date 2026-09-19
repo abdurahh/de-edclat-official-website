@@ -5,8 +5,7 @@ import { useState } from "react";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { productInquiryMessage } from "@/lib/whatsapp";
 import {
-  JEWELRY_DETAIL_FIELDS,
-  WATCH_DETAIL_FIELDS,
+  detailFieldsForCategory,
   formatJewelryStone,
   formatJewelryWeight,
   formatPrice,
@@ -25,10 +24,7 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
       ? product.images
       : ["/images/watch-cover.jpeg"];
   const [activeIndex, setActiveIndex] = useState(0);
-  const fields =
-    product.category === "watch"
-      ? WATCH_DETAIL_FIELDS
-      : JEWELRY_DETAIL_FIELDS;
+  const fields = detailFieldsForCategory(product.category);
   const visibleDetails = fields.filter((field) => {
     if (field.key === "weight") {
       return formatJewelryWeight(product.details).length > 0;
@@ -100,13 +96,10 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         <p className="mt-3 text-sm uppercase tracking-[0.22em] text-slate">
           {stockLabel(product.stock_status)}
           {product.condition ? ` · ${product.condition}` : ""}
+          {product.category === "gemstone" && product.gemstone_color_name
+            ? ` · ${product.gemstone_color_name}`
+            : ""}
         </p>
-
-        {product.description ? (
-          <p className="mt-8 max-w-lg text-base leading-8 text-slate">
-            {product.description}
-          </p>
-        ) : null}
 
         {visibleDetails.length > 0 || stones.length > 0 ? (
           <dl className="mt-10 divide-y divide-ruby/10 border-y border-ruby/10">
@@ -138,6 +131,12 @@ export function ProductDetailView({ product }: ProductDetailViewProps) {
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
           <WhatsAppButton message={productInquiryMessage(product)} />
         </div>
+
+        {product.description ? (
+          <p className="mt-8 max-w-lg text-base leading-8 text-slate">
+            {product.description}
+          </p>
+        ) : null}
       </div>
     </div>
   );
