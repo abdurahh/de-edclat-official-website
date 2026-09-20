@@ -176,6 +176,8 @@ export function AdminDashboard({
   const [deletingColor, setDeletingColor] = useState(false);
   const [serialPreview, setSerialPreview] = useState<string | null>(null);
   const [serialPreviewLoading, setSerialPreviewLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [deletingProduct, setDeletingProduct] = useState(false);
 
   const detailFields = useMemo(
     () => detailFieldsForCategory(form.category),
@@ -749,17 +751,22 @@ export function AdminDashboard({
     router.refresh();
   }
 
-  async function deleteProduct(id: string) {
-    if (!window.confirm("Permanently delete this product?")) return;
+  async function confirmDeleteProduct() {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+    setDeletingProduct(true);
+    setError(null);
     const supabase = createClient();
     const { error: deleteError } = await supabase
       .from("products")
       .delete()
       .eq("id", id);
+    setDeletingProduct(false);
     if (deleteError) {
       setError(deleteError.message);
       return;
     }
+    setDeleteTarget(null);
     setProducts((current) => current.filter((item) => item.id !== id));
     if (editingId === id) resetForm();
     setStatus("Product deleted.");
@@ -1604,7 +1611,7 @@ export function AdminDashboard({
                   <button
                     type="button"
                     onClick={() => startEdit(product)}
-                    className="rounded-full border border-ruby/20 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-ruby"
+                    className="cursor-pointer rounded-full border border-ruby/20 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-ruby"
                   >
                     Edit
                   </button>
@@ -1612,15 +1619,15 @@ export function AdminDashboard({
                     <button
                       type="button"
                       onClick={() => deactivateProduct(product.id)}
-                      className="rounded-full border border-ruby/20 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate"
+                      className="cursor-pointer rounded-full border border-ruby/20 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-slate"
                     >
                       Deactivate
                     </button>
                   ) : null}
                   <button
                     type="button"
-                    onClick={() => deleteProduct(product.id)}
-                    className="rounded-full border border-ruby/20 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-ruby"
+                    onClick={() => setDeleteTarget(product)}
+                    className="cursor-pointer rounded-full border border-ruby/20 px-4 py-2 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-ruby"
                   >
                     Delete
                   </button>
@@ -1630,6 +1637,59 @@ export function AdminDashboard({
           </ul>
         )}
       </section>
+
+      {deleteTarget ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/40 px-5 backdrop-blur-[2px]"
+          role="presentation"
+          onClick={() => {
+            if (!deletingProduct) setDeleteTarget(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-product-title"
+            className="w-full max-w-md rounded-[1.5rem] border border-ruby/15 bg-pearl p-6 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p
+              id="delete-product-title"
+              className="font-display text-2xl text-charcoal"
+            >
+              Delete this product?
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-slate">
+              Permanently delete{" "}
+              <span className="font-medium text-charcoal">
+                {deleteTarget.brand} {deleteTarget.name}
+              </span>
+              {deleteTarget.serial_number
+                ? ` (${deleteTarget.serial_number})`
+                : ""}
+              . This cannot be undone.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                disabled={deletingProduct}
+                onClick={() => setDeleteTarget(null)}
+                className="cursor-pointer rounded-full border border-ruby/20 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate transition hover:bg-white/60 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingProduct}
+                onClick={() => void confirmDeleteProduct()}
+                className="cursor-pointer rounded-full bg-ruby px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-pearl transition hover:bg-charcoal disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {deletingProduct ? "Deleting…" : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

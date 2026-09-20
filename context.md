@@ -16,7 +16,18 @@ Format: **`MAJOR.MINOR.PATCH`** (e.g. `01.01.01`) — unreleased / pre-public ba
 
 Bump the matching segment for the batch; reset lower segments when a higher one increases (e.g. new minor → `01.02.00`).
 
-**Current batch:** `01.01.01`
+**Current batch:** `01.02.01`
+
+---
+
+## 2026-09-20 — Batch `01.02.01` (unreleased)
+
+Security hardening + small admin UX (this chat).
+
+- **Security:** revoke client `EXECUTE` on serial `SECURITY DEFINER` helpers — `allocate_product_serial_internal` + trigger assigners blocked for `anon`/`authenticated`; `next`/`preview` serial RPCs kept for authenticated admins only (closes public `/rest/v1/rpc` surface flagged by Supabase advisors)
+- **Migration:** `20260920015023_revoke_serial_rpc_execute.sql` (applied on live `deeclat-website`)
+- **Admin UX:** product Delete opens in-page confirm dialog (not `window.confirm`); Edit / Deactivate / Delete use pointer cursor
+- Paths: `supabase/migrations/20260920015023_revoke_serial_rpc_execute.sql` · `components/admin/AdminDashboard.tsx`
 
 ---
 
